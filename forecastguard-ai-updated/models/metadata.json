@@ -1,0 +1,163 @@
+{
+  "model_name": "HistGradientBoostingClassifier (XGBoost fallback)",
+  "used_xgboost": false,
+  "numeric_features": [
+    "lead_day",
+    "lat",
+    "lon",
+    "month",
+    "day_of_year",
+    "forecast_t2m",
+    "forecast_msl",
+    "forecast_rain",
+    "forecast_u10",
+    "forecast_v10",
+    "forecast_rh",
+    "forecast_z500",
+    "forecast_u850",
+    "forecast_v850",
+    "forecast_q850",
+    "forecast_wind_speed_10m",
+    "forecast_wind_speed_850",
+    "nbhd_rain_mean",
+    "nbhd_rain_std",
+    "nbhd_msl_std"
+  ],
+  "categorical_features": [
+    "region",
+    "season"
+  ],
+  "target": "bust",
+  "train_period": "earlier prototype initialization dates",
+  "val_period": "middle prototype initialization date (used for calibration)",
+  "test_period": "latest prototype initialization date",
+  "evaluation_note": "Prototype evaluation on a small 2019 sample \u2014 not production performance",
+  "train_dates": [
+    "2019-06-01"
+  ],
+  "val_dates": [
+    "2019-06-11"
+  ],
+  "test_dates": [
+    "2019-06-21"
+  ],
+  "train_rows": 810,
+  "val_rows": 810,
+  "test_rows": 810,
+  "baseline_metrics": {
+    "roc_auc": 0.7400458370390641,
+    "pr_auc": 0.47210964093791097,
+    "precision": 0.3241525423728814,
+    "recall": 0.8138297872340425,
+    "f1": 0.4636363636363636,
+    "brier": 0.2516956726651275
+  },
+  "raw_model_metrics": {
+    "roc_auc": 0.6748819867277827,
+    "pr_auc": 0.40156469636794573,
+    "precision": 0.35964912280701755,
+    "recall": 0.43617021276595747,
+    "f1": 0.3942307692307692,
+    "brier": 0.21741561046280466
+  },
+  "calibrated_model_metrics": {
+    "roc_auc": 0.6762032222754327,
+    "pr_auc": 0.37686235272900315,
+    "precision": 0.6388888888888888,
+    "recall": 0.12234042553191489,
+    "f1": 0.20535714285714285,
+    "brier": 0.16884901932211804
+  },
+  "by_lead_day": [
+    {
+      "roc_auc": 0.569078947368421,
+      "pr_auc": 0.42648827112191406,
+      "precision": 1.0,
+      "recall": 0.125,
+      "f1": 0.2222222222222222,
+      "brier": 0.21019598381197213,
+      "lead_day": 1
+    },
+    {
+      "roc_auc": 0.7720588235294118,
+      "pr_auc": 0.44495934414076044,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "brier": 0.14847352976043982,
+      "lead_day": 2
+    },
+    {
+      "roc_auc": 0.7711397058823529,
+      "pr_auc": 0.4840432185633424,
+      "precision": 1.0,
+      "recall": 0.11764705882352941,
+      "f1": 0.21052631578947367,
+      "brier": 0.14020124759177097,
+      "lead_day": 3
+    },
+    {
+      "roc_auc": 0.6604938271604939,
+      "pr_auc": 0.3869492783646946,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "brier": 0.1644187712752577,
+      "lead_day": 4
+    },
+    {
+      "roc_auc": 0.6738095238095239,
+      "pr_auc": 0.3597045674731097,
+      "precision": 0.25,
+      "recall": 0.047619047619047616,
+      "f1": 0.08,
+      "brier": 0.1869537054727565,
+      "lead_day": 5
+    },
+    {
+      "roc_auc": 0.6533653846153846,
+      "pr_auc": 0.2997935008667614,
+      "precision": 0.5,
+      "recall": 0.125,
+      "f1": 0.2,
+      "brier": 0.16597218171011996,
+      "lead_day": 6
+    },
+    {
+      "roc_auc": 0.6865808823529411,
+      "pr_auc": 0.3808587325905012,
+      "precision": 0.5,
+      "recall": 0.11764705882352941,
+      "f1": 0.19047619047619047,
+      "brier": 0.1601927635534285,
+      "lead_day": 7
+    },
+    {
+      "roc_auc": 0.759700176366843,
+      "pr_auc": 0.48276661968522433,
+      "precision": 0.7,
+      "recall": 0.3888888888888889,
+      "f1": 0.5,
+      "brier": 0.1582861978168934,
+      "lead_day": 8
+    },
+    {
+      "roc_auc": 0.6162698412698413,
+      "pr_auc": 0.41167725934603994,
+      "precision": 0.8,
+      "recall": 0.19047619047619047,
+      "f1": 0.3076923076923077,
+      "brier": 0.18251889606899396,
+      "lead_day": 9
+    },
+    {
+      "roc_auc": 0.6532258064516129,
+      "pr_auc": 0.38832524593048917,
+      "precision": 0.6666666666666666,
+      "recall": 0.10526315789473684,
+      "f1": 0.18181818181818182,
+      "brier": 0.17127691615954735,
+      "lead_day": 10
+    }
+  ]
+}

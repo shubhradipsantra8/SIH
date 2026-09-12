@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ForecastGuard AI — Forecast Reliability Intelligence</title>
+<style>
+  :root{
+    --bg: #0B1220;
+    --bg-soft: #0F1B2E;
+    --surface: #142238;
+    --surface-2: #182842;
+    --line: #223350;
+    --text: #EAF1F7;
+    --text-dim: #93A7C2;
+    --text-faint: #5E7192;
+    --teal: #34C9A6;
+    --teal-dim: #1E7C68;
+    --amber: #F2B441;
+    --coral: #EF5B48;
+    --coral-dim: #7A2E27;
+    --blue: #5B9CF2;
+    --neutral-map: #24344F;
+    --radius-s: 6px;
+    --radius-m: 10px;
+    --radius-l: 16px;
+    --font-head: 'Avenir Next', 'Segoe UI Semibold', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse 900px 500px at 85% -10%, rgba(91,156,242,0.12), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 5% 10%, rgba(52,201,166,0.08), transparent 55%),
+      var(--bg);
+    color:var(--text);
+    font-family:var(--font-body);
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    padding-bottom:60px;
+  }
+
+  a{color:inherit;}
+  button{font-family:inherit;}
+
+  .shell{max-width:1320px;margin:0 auto;padding:0 28px;}
+
+  header.top{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:22px 0 18px;border-bottom:1px solid var(--line);
+  }
+  .brand{display:flex;align-items:center;gap:12px;}
+  .brand-mark{
+    width:38px;height:38px;border-radius:10px;
+    background:linear-gradient(135deg, var(--teal), var(--blue));
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+  }
+  .brand-mark svg{width:20px;height:20px;}
+  .brand-text h1{font-family:var(--font-head);font-size:19px;margin:0;letter-spacing:-0.01em;font-weight:700;}
+  .brand-text p{margin:1px 0 0;font-size:12.5px;color:var(--text-dim);}
+  .status-pill{
+    display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-dim);
+    padding:7px 14px;border:1px solid var(--line);border-radius:99px;background:rgba(255,255,255,0.02);
+  }
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--teal);box-shadow:0 0 0 4px rgba(52,201,166,0.18);}
+  .dot.offline{background:var(--amber);box-shadow:0 0 0 4px rgba(242,180,65,0.18);}
+  .status-pill{cursor:default;}
+  .live-badge{display:inline-block;font-size:9.5px;font-weight:700;letter-spacing:0.03em;padding:1px 6px;border-radius:5px;margin-left:6px;vertical-align:1px;}
+  .live-badge.live{background:rgba(52,201,166,0.16);color:var(--teal);}
+  .live-badge.sim{background:rgba(242,180,65,0.16);color:var(--amber);}
+
+  .hero{
+    display:grid;grid-template-columns:1.3fr 1fr;gap:28px;
+    padding:40px 0 28px;border-bottom:1px solid var(--line);
+    align-items:end;
+  }
+  .hero-left .kicker{font-size:13px;color:var(--text-dim);margin:0 0 10px;}
+  .hero-left h2{
+    font-family:var(--font-head);font-size:32px;line-height:1.25;margin:0 0 14px;
+    font-weight:700;letter-spacing:-0.01em;max-width:560px;
+  }
+  .hero-left p.sub{color:var(--text-dim);font-size:14.5px;line-height:1.6;max-width:520px;margin:0;}
+  .hero-right{
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-l);
+    padding:22px 26px;display:flex;align-items:center;gap:26px;
+  }
+  .big-number{font-family:var(--font-head);font-size:56px;font-weight:800;line-height:1;letter-spacing:-0.02em;}
+  .big-number-wrap{flex-shrink:0;}
+  .big-number-label{font-size:12.5px;color:var(--text-dim);margin-top:6px;}
+  .risk-tag{
+    display:inline-block;margin-top:10px;padding:3px 10px;border-radius:99px;font-size:12px;font-weight:600;
+  }
+  .hero-divider{width:1px;align-self:stretch;background:var(--line);}
+  .hero-stats{display:flex;flex-direction:column;gap:12px;font-size:13px;}
+  .hero-stats .row{display:flex;justify-content:space-between;gap:24px;color:var(--text-dim);}
+  .hero-stats .row b{color:var(--text);font-weight:600;}
+
+  .controls{
+    display:flex;flex-wrap:wrap;align-items:center;gap:14px;
+    padding:22px 0;border-bottom:1px solid var(--line);
+  }
+  .field{display:flex;flex-direction:column;gap:5px;}
+  .field label{font-size:11.5px;color:var(--text-faint);}
+  .field select, .field input[type=date]{
+    background:var(--surface);border:1px solid var(--line);color:var(--text);
+    padding:8px 12px;border-radius:var(--radius-s);font-size:13.5px;min-width:150px;
+  }
+  .field select:focus, .field input:focus{outline:2px solid var(--blue);outline-offset:1px;}
+
+  .day-tabs{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap;}
+  .day-tab{
+    border:1px solid var(--line);background:var(--surface);color:var(--text-dim);
+    padding:8px 13px;border-radius:var(--radius-s);font-size:13px;cursor:pointer;
+    transition:background .15s, color .15s, border-color .15s;
+  }
+  .day-tab:hover{border-color:var(--blue);}
+  .day-tab.active{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:600;}
+  .day-tab:focus-visible{outline:2px solid var(--blue);outline-offset:2px;}
+
+  .replay-btn{
+    border:1px solid var(--teal-dim);background:rgba(52,201,166,0.08);color:var(--teal);
+    padding:8px 15px;border-radius:var(--radius-s);font-size:13px;cursor:pointer;font-weight:600;
+    display:flex;align-items:center;gap:7px;transition:background .15s;
+  }
+  .replay-btn:hover{background:rgba(52,201,166,0.16);}
+
+  .main{display:grid;grid-template-columns:1.5fr 1fr;gap:22px;padding-top:26px;align-items:start;}
+
+  .panel{
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-l);
+    padding:22px;
+  }
+  .panel h3{font-family:var(--font-head);font-size:15px;margin:0 0 4px;font-weight:700;}
+  .panel .panel-sub{font-size:12.5px;color:var(--text-faint);margin:0 0 16px;}
+
+  /* ---- India map ---- */
+  .map-wrap{
+    position:relative;background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius-m);
+    padding:6px;
+  }
+  .map-wrap svg{width:100%;height:auto;display:block;}
+  .state-path{
+    stroke:var(--bg-soft);stroke-width:1.1;cursor:default;transition:opacity .12s, stroke-width .12s;
+  }
+  .state-path.tracked{cursor:pointer;}
+  .state-path.tracked:hover{stroke:#fff;stroke-width:2;}
+  .state-path.selected{stroke:#fff;stroke-width:2.2;}
+  .map-tooltip{
+    position:absolute;pointer-events:none;background:#0B1220;border:1px solid var(--line);
+    border-radius:var(--radius-s);padding:7px 10px;font-size:12px;color:var(--text);
+    box-shadow:0 8px 24px rgba(0,0,0,0.35);opacity:0;transform:translate(-50%,-115%);transition:opacity .1s;
+    white-space:nowrap;z-index:5;
+  }
+  .map-tooltip .mt-name{font-weight:700;margin-bottom:2px;}
+  .map-tooltip .mt-val{color:var(--text-dim);}
+
+  .legend{display:flex;gap:16px;margin-top:14px;flex-wrap:wrap;font-size:11.5px;color:var(--text-dim);}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .legend i{width:9px;height:9px;border-radius:2px;display:inline-block;}
+
+  /* ---- risk ranking list ---- */
+  .rank-list{list-style:none;margin:18px 0 0;padding:0;display:flex;flex-direction:column;gap:6px;}
+  .rank-row{
+    display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--radius-s);
+    border:1px solid transparent;cursor:pointer;transition:background .12s, border-color .12s;
+  }
+  .rank-row:hover{background:var(--surface-2);}
+  .rank-row.selected{background:var(--surface-2);border-color:var(--blue);}
+  .rank-row .rr-name{font-size:13px;flex:1;}
+  .rank-row .rr-bar-track{width:110px;height:6px;border-radius:99px;background:var(--surface-2);overflow:hidden;}
+  .rank-row .rr-bar-fill{height:100%;border-radius:99px;}
+  .rank-row .rr-val{font-size:12.5px;font-weight:700;width:40px;text-align:right;}
+  .rank-row:focus-visible{outline:2px solid var(--blue);outline-offset:2px;}
+
+  /* detail panel */
+  .detail-region{font-family:var(--font-head);font-size:20px;font-weight:800;margin:0 0 2px;}
+  .detail-meta{font-size:12.5px;color:var(--text-faint);margin:0 0 18px;}
+
+  .snapshot-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px;}
+  .snapshot-item{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius-s);padding:9px 10px;transition:border-color .15s, background .15s;}
+  .snapshot-item.match{border-color:var(--blue);background:rgba(91,156,242,0.10);}
+  .snapshot-item .s-label{font-size:10.5px;color:var(--text-faint);margin-bottom:3px;}
+  .snapshot-item .s-val{font-size:15px;font-weight:700;font-family:var(--font-head);}
+
+  .gauge-row{display:flex;gap:22px;margin-bottom:18px;}
+  .gauge-block{flex:1;}
+  .gauge-block .g-label{font-size:11.5px;color:var(--text-faint);margin-bottom:6px;}
+  .gauge-block .g-val{font-family:var(--font-head);font-size:26px;font-weight:800;}
+  .gauge-track{height:6px;border-radius:99px;background:var(--surface-2);margin-top:8px;overflow:hidden;}
+  .gauge-fill{height:100%;border-radius:99px;}
+
+  .drivers-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px;}
+  .drivers-list li{
+    display:flex;align-items:flex-start;gap:9px;font-size:13px;color:var(--text-dim);line-height:1.4;
+  }
+  .drivers-list li .marker{
+    width:5px;height:5px;border-radius:50%;background:var(--amber);margin-top:7px;flex-shrink:0;
+  }
+  .drivers-list li b{color:var(--text);font-weight:600;}
+
+  .analogue-box{
+    margin-top:18px;padding:14px 16px;border-radius:var(--radius-m);
+    background:var(--surface-2);border:1px solid var(--line);
+  }
+  .analogue-box .a-title{font-size:12px;color:var(--text-faint);margin-bottom:8px;}
+  .analogue-stat{display:flex;align-items:baseline;gap:8px;}
+  .analogue-stat .n{font-family:var(--font-head);font-size:24px;font-weight:800;}
+  .analogue-stat .d{font-size:12.5px;color:var(--text-dim);}
+  .analogue-bar{height:8px;border-radius:99px;background:var(--surface);margin-top:10px;overflow:hidden;display:flex;}
+
+  .replay-card{
+    margin-top:16px;padding:14px 16px;border-radius:var(--radius-m);
+    background:rgba(242,180,65,0.07);border:1px solid rgba(242,180,65,0.35);
+    display:none;
+  }
+  .replay-card.show{display:block;}
+  .replay-card .rc-title{font-size:12px;color:var(--amber);font-weight:700;margin-bottom:6px;}
+  .replay-card .rc-body{font-size:13px;color:var(--text-dim);line-height:1.5;}
+  .replay-card .rc-body b{color:var(--text);}
+
+  .trend-wrap{margin-top:22px;}
+  .trend-bars{display:flex;align-items:flex-end;gap:10px;height:120px;margin-top:14px;}
+  .trend-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px;}
+  .trend-bar{width:100%;border-radius:4px 4px 0 0;min-height:4px;transition:height .3s ease;}
+  .trend-day{font-size:11px;color:var(--text-faint);}
+
+  /* eval section */
+  .eval-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px;}
+  .eval-card{
+    background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius-m);
+    padding:14px 15px;
+  }
+  .eval-card .e-label{font-size:11.5px;color:var(--text-faint);margin-bottom:6px;}
+  .eval-card .e-val{font-family:var(--font-head);font-size:21px;font-weight:800;}
+  .eval-card .e-note{font-size:11px;color:var(--text-faint);margin-top:4px;}
+
+  .eval-table{width:100%;border-collapse:collapse;margin-top:16px;font-size:13px;}
+  .eval-table th{text-align:left;font-size:11.5px;color:var(--text-faint);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--line);}
+  .eval-table td{padding:8px 10px;border-bottom:1px solid var(--line);color:var(--text-dim);}
+  .eval-table tr:last-child td{border-bottom:none;}
+  .eval-table td.lead{color:var(--text);font-weight:600;}
+
+  .eval-secondary{display:grid;grid-template-columns:1.2fr 1fr;gap:22px;margin-top:22px;align-items:start;}
+  .diagram-box canvas{width:100%;height:200px;display:block;}
+  .diagram-caption{font-size:11.5px;color:var(--text-faint);margin-top:8px;line-height:1.5;}
+
+  .confusion{display:grid;grid-template-columns:auto repeat(2,1fr);gap:2px;margin-top:8px;max-width:320px;}
+  .cm-cell{padding:14px 10px;text-align:center;border-radius:var(--radius-s);font-size:13px;}
+  .cm-head{background:transparent;color:var(--text-faint);font-size:11px;display:flex;align-items:center;justify-content:center;}
+  .cm-val{font-family:var(--font-head);font-size:20px;font-weight:800;}
+  .cm-lbl{font-size:10.5px;color:var(--text-faint);margin-top:2px;}
+  .cm-tp{background:rgba(52,201,166,0.14);}
+  .cm-tn{background:rgba(91,156,242,0.12);}
+  .cm-fp{background:rgba(242,180,65,0.14);}
+  .cm-fn{background:rgba(239,91,72,0.16);}
+
+  /* alerts */
+  .alerts-list{display:flex;flex-direction:column;gap:10px;margin-top:14px;}
+  .alert-item{
+    display:flex;gap:12px;padding:12px 14px;border-radius:var(--radius-m);
+    background:var(--surface-2);border-left:3px solid var(--coral);
+  }
+  .alert-item.med{border-left-color:var(--amber);}
+  .alert-item .a-icon{flex-shrink:0;margin-top:2px;}
+  .alert-item .a-title{font-size:13px;font-weight:600;margin:0 0 2px;}
+  .alert-item .a-body{font-size:12.5px;color:var(--text-dim);line-height:1.5;margin:0;}
+
+  /* ---- top status strip ---- */
+  .status-strip{display:flex;flex-wrap:wrap;gap:10px;padding:14px 0;border-bottom:1px solid var(--line);}
+  .strip-chip{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--text-dim);background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:6px 12px;}
+  .strip-chip b{color:var(--text);font-weight:700;letter-spacing:0.01em;}
+  .strip-chip .chip-key{color:var(--text-faint);font-size:10.5px;letter-spacing:0.06em;text-transform:uppercase;}
+  .strip-chip .chip-dot{width:6px;height:6px;border-radius:50%;background:var(--teal);flex-shrink:0;}
+  .strip-chip.warn .chip-dot{background:var(--amber);}
+
+  /* ---- risk hotspots ---- */
+  .hotspots{margin-top:14px;padding:12px 14px;border-radius:var(--radius-m);background:rgba(239,91,72,0.08);border:1px solid rgba(239,91,72,0.28);}
+  .hotspots .h-title{font-size:12px;font-weight:700;color:var(--coral);margin:0 0 8px;display:flex;align-items:center;gap:6px;}
+  .hotspots ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:7px;}
+  .hotspots li{font-size:12px;color:var(--text-dim);background:var(--surface-2);border:1px solid var(--line);border-radius:99px;padding:4px 10px;}
+  .hotspots li b{color:var(--text);}
+
+  /* ---- confidence range ---- */
+  .confidence-block{margin-top:2px;}
+  .confidence-range{position:relative;height:6px;border-radius:99px;background:var(--surface-2);margin-top:10px;}
+  .confidence-range .cr-fill{position:absolute;top:0;bottom:0;border-radius:99px;background:rgba(91,156,242,0.35);}
+  .confidence-range .cr-point{position:absolute;top:-3px;width:12px;height:12px;border-radius:50%;background:var(--blue);border:2px solid var(--bg);transform:translateX(-50%);}
+  .confidence-labels{display:flex;justify-content:space-between;font-size:10.5px;color:var(--text-faint);margin-top:6px;}
+  .confidence-tag{display:inline-block;margin-top:8px;font-size:11px;color:var(--text-dim);}
+
+  /* ---- plain-language interpretation ---- */
+  .interpretation{margin-top:12px;padding:11px 13px;border-radius:var(--radius-m);background:var(--surface-2);border:1px solid var(--line);font-size:12.5px;color:var(--text-dim);line-height:1.55;}
+
+  /* ---- action / recommendation ---- */
+  .action-box{margin-top:18px;padding:14px 16px;border-radius:var(--radius-m);border:1px solid var(--line);background:var(--surface-2);}
+  .action-box .ab-title{font-size:12px;font-weight:700;margin:0 0 8px;display:flex;align-items:center;gap:6px;}
+  .action-box ul{margin:8px 0 0;padding-left:18px;font-size:12.5px;color:var(--text-dim);line-height:1.7;}
+  .action-box .ab-note{font-size:10.5px;color:var(--text-faint);margin-top:10px;font-style:italic;}
+
+  /* ---- degradation line chart ---- */
+  .degradation-legend{display:flex;gap:16px;font-size:11.5px;color:var(--text-dim);margin-top:8px;}
+  .degradation-legend span{display:inline-flex;align-items:center;gap:6px;}
+  .degradation-legend i{width:14px;height:2px;display:inline-block;border-radius:1px;}
+
+  /* ---- analogue example cases ---- */
+  .analogue-cases{display:flex;flex-direction:column;gap:6px;margin-top:12px;}
+  .analogue-case{display:flex;justify-content:space-between;gap:8px;font-size:11.5px;color:var(--text-dim);background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-s);padding:6px 10px;}
+  .analogue-case b{color:var(--text);}
+  .analogue-case .ac-bust{font-weight:700;}
+
+  /* ---- replay day-by-day evolution ---- */
+  .replay-evolution{display:flex;flex-direction:column;gap:5px;margin-top:10px;}
+  .replay-evo-row{display:flex;align-items:center;gap:10px;font-size:12px;opacity:0;transform:translateY(4px);transition:opacity .3s ease, transform .3s ease;}
+  .replay-evo-row.show{opacity:1;transform:translateY(0);}
+  .replay-evo-row .re-day{width:52px;color:var(--text-faint);}
+  .replay-evo-row .re-bar-track{flex:1;height:6px;border-radius:99px;background:var(--surface-2);overflow:hidden;}
+  .replay-evo-row .re-bar-fill{height:100%;border-radius:99px;}
+  .replay-evo-row .re-val{width:90px;text-align:right;font-weight:600;}
+
+  /* ---- model comparison table ---- */
+  .comparison-table{width:100%;border-collapse:collapse;margin-top:14px;font-size:13px;}
+  .comparison-table th{text-align:left;font-size:11.5px;color:var(--text-faint);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--line);}
+  .comparison-table td{padding:8px 10px;border-bottom:1px solid var(--line);color:var(--text-dim);}
+  .comparison-table td.metric{color:var(--text);font-weight:600;}
+  .comparison-table td.win{color:var(--teal);font-weight:700;}
+  .comparison-note{font-size:11.5px;color:var(--text-faint);margin-top:10px;line-height:1.5;}
+
+  /* ---- methodology / leakage guard card ---- */
+  .methodology-list{list-style:none;margin:14px 0 0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .methodology-list li{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;color:var(--text-dim);line-height:1.5;}
+  .methodology-list li .check{color:var(--teal);font-weight:800;flex-shrink:0;}
+
+  /* ---- pipeline diagram ---- */
+  .pipeline{display:flex;align-items:center;gap:8px;margin-top:16px;flex-wrap:wrap;}
+  .pipe-node{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius-m);padding:12px 14px;font-size:12px;text-align:center;flex:1;min-width:130px;}
+  .pipe-node.output{border-color:var(--blue);}
+  .pipe-arrow{color:var(--text-faint);font-size:16px;flex-shrink:0;}
+  .pipe-outputs{display:flex;flex-direction:column;gap:6px;flex:1;min-width:170px;}
+  .pipe-outputs .pipe-node{padding:8px 12px;}
+
+  /* ---- system health panel ---- */
+  .health-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:14px;}
+  .health-item{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-dim);background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius-s);padding:9px 11px;}
+  .health-item .h-dot{width:8px;height:8px;border-radius:50%;background:var(--teal);flex-shrink:0;}
+  .health-item.bad .h-dot{background:var(--coral);}
+  .health-item.warn .h-dot{background:var(--amber);}
+
+  /* ---- alert priority badge ---- */
+  .priority-badge{display:inline-block;font-size:10px;font-weight:800;letter-spacing:0.04em;padding:2px 7px;border-radius:5px;margin-left:8px;vertical-align:1px;}
+  .priority-badge.p1{background:rgba(239,91,72,0.18);color:var(--coral);}
+  .priority-badge.p2{background:rgba(242,180,65,0.18);color:var(--amber);}
+  .priority-badge.p3{background:rgba(91,156,242,0.16);color:var(--blue);}
+
+  @media (max-width:980px){
+    .health-grid{grid-template-columns:repeat(2,1fr);}
+    .methodology-list{grid-template-columns:1fr;}
+  }
+
+  .footnote{
+    margin-top:28px;padding:16px 20px;border-radius:var(--radius-m);
+    border:1px dashed var(--line);color:var(--text-faint);font-size:12px;line-height:1.6;
+  }
+
+  footer.site{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);
+    display:flex;justify-content:space-between;color:var(--text-faint);font-size:12px;flex-wrap:wrap;gap:8px;}
+
+  @media (max-width:980px){
+    .hero{grid-template-columns:1fr;}
+    .main{grid-template-columns:1fr;}
+    .eval-grid{grid-template-columns:repeat(2,1fr);}
+    .eval-secondary{grid-template-columns:1fr;}
+    .day-tabs{margin-left:0;width:100%;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important;}
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <header class="top">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 15a5 5 0 0 1 1-9.9A6 6 0 0 1 17 7a4.5 4.5 0 0 1-1 8.9H4Z" stroke="#0B1220" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M8 19l1.5-2.5M12 19.5L13.5 17M16 19l1.2-2" stroke="#0B1220" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <h1>ForecastGuard AI</h1>
+        <p>Forecast reliability intelligence for medium-range NWP · SIH 26079 · MoES / NCMRWF</p>
+      </div>
+    </div>
+    <div class="status-pill" id="statusPill" title="Checking backend connection…"><span class="dot" id="statusDot"></span> <span id="statusText">Connecting…</span></div>
+  </header>
+
+  <section class="status-strip" id="statusStrip">
+    <div class="strip-chip"><span class="chip-key">Model</span> <b id="stripModel">—</b></div>
+    <div class="strip-chip"><span class="chip-key">Data</span> <b>HRES + ERA5</b></div>
+    <div class="strip-chip"><span class="chip-key">Forecast</span> <b id="stripDay">Day 5</b></div>
+    <div class="strip-chip" id="stripSystem"><span class="chip-dot"></span><span class="chip-key">System</span> <b id="stripSystemVal">Checking…</b></div>
+  </section>
+
+  <section class="hero">
+    <div class="hero-left">
+      <p class="kicker">We don't predict the weather — we predict when the forecast will fail</p>
+      <h2>Region-wise confidence for every medium-range forecast, Day 1 through Day 10.</h2>
+      <p class="sub">Select a variable, a lead day, and a state on the map. Each estimate is a probability that the NWP forecast for that region will land outside its normal error range — served live by the trained model over a real WeatherBench2 HRES + ERA5 prototype sample, and explained in plain meteorological terms.</p>
+    </div>
+    <div class="hero-right">
+      <div class="big-number-wrap">
+        <div class="big-number" id="heroBust" style="color:var(--amber)">—</div>
+        <div class="big-number-label" id="heroLabel">Bust probability</div>
+        <span class="risk-tag" id="heroTag">—</span>
+      </div>
+      <div class="hero-divider"></div>
+      <div class="hero-stats">
+        <div class="row"><span>Region</span><b id="heroRegion">—</b></div>
+        <div class="row"><span>Lead time</span><b id="heroLead">—</b></div>
+        <div class="row"><span>Variable</span><b id="heroVar">—</b></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="controls">
+    <div class="field">
+      <label for="dateInput">Forecast issued</label>
+      <select id="dateInput"><option>Loading dates…</option></select>
+    </div>
+    <div class="field">
+      <label for="varInput">Variable</label>
+      <select id="varInput" title="Highlights the matching field below — the model outputs one overall bust probability, not a separate one per variable.">
+        <option value="rain">Rainfall</option>
+        <option value="temp">Temperature</option>
+        <option value="wind">Wind field</option>
+        <option value="pressure">Sea-level pressure</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Forecast horizon</label>
+      <div class="day-tabs" id="dayTabs"></div>
+    </div>
+  </section>
+
+  <div style="display:flex;justify-content:flex-end;padding-top:14px;">
+    <button class="replay-btn" id="replayBtn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 3l14 9-14 9V3z" fill="currentColor"/></svg>
+      Run historical replay: Odisha, 21 Jun 2019
+    </button>
+  </div>
+
+  <section class="main">
+    <!-- LEFT: map + ranking -->
+    <div class="panel">
+      <h3>India forecast confidence map</h3>
+      <p class="panel-sub">Shaded by bust probability for the selected variable and lead day. Sixteen states are in the active monitoring network; the rest are shown for context.</p>
+      <div class="map-wrap" id="mapWrap">
+        <svg id="indiaSvg" viewBox="0 0 560 620" xmlns="http://www.w3.org/2000/svg"></svg>
+        <div class="map-tooltip" id="mapTooltip"><div class="mt-name" id="mtName"></div><div class="mt-val" id="mtVal"></div></div>
+      </div>
+      <div class="legend">
+        <span><i style="background:var(--teal)"></i>Very low / low</span>
+        <span><i style="background:var(--amber)"></i>Moderate</span>
+        <span><i style="background:#e8823f"></i>High</span>
+        <span><i style="background:var(--coral)"></i>Very high</span>
+        <span><i style="background:var(--neutral-map)"></i>Not yet monitored</span>
+      </div>
+
+      <div class="hotspots" id="hotspotsBox" style="display:none;">
+        <p class="h-title">⚠ <span id="hotspotCount">0</span> HIGH-RISK REGIONS</p>
+        <ul id="hotspotList"></ul>
+      </div>
+
+      <ul class="rank-list" id="rankList"></ul>
+
+      <div class="trend-wrap">
+        <h3 id="trendTitle">Lead-time risk — Odisha</h3>
+        <p class="panel-sub">Bust probability vs. reliability as forecast lead time increases, Day 1 → Day 10.</p>
+        <canvas id="degradationCanvas" width="520" height="180" style="width:100%;height:180px;display:block;"></canvas>
+        <div class="degradation-legend">
+          <span><i style="background:var(--coral)"></i>Bust probability</span>
+          <span><i style="background:var(--teal)"></i>Reliability</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: detail -->
+    <div class="panel">
+      <p class="detail-region" id="detRegion">Odisha</p>
+      <p class="detail-meta" id="detMeta">Day 5 · Rainfall · issued 11 Sep 2026</p>
+
+      <div class="snapshot-grid" id="snapshotGrid">
+        <div class="snapshot-item" data-field="rain"><div class="s-label">Rainfall</div><div class="s-val" id="snapRain">—</div></div>
+        <div class="snapshot-item" data-field="temp"><div class="s-label">Temperature</div><div class="s-val" id="snapTemp">—</div></div>
+        <div class="snapshot-item" data-field="wind"><div class="s-label">Wind speed</div><div class="s-val" id="snapWind">—</div></div>
+        <div class="snapshot-item" data-field="pressure"><div class="s-label">Pressure</div><div class="s-val" id="snapPressure">—</div></div>
+      </div>
+
+      <div class="gauge-row">
+        <div class="gauge-block">
+          <div class="g-label">Bust probability</div>
+          <div class="g-val" id="detBust">—</div>
+          <div class="gauge-track"><div class="gauge-fill" id="detBustFill"></div></div>
+        </div>
+        <div class="gauge-block">
+          <div class="g-label">Reliability indicator</div>
+          <div class="g-val" id="detRel">—</div>
+          <div class="gauge-track"><div class="gauge-fill" id="detRelFill" style="background:var(--teal)"></div></div>
+        </div>
+      </div>
+
+      <div class="confidence-block">
+        <div class="g-label">Model confidence band <span style="color:var(--text-faint)">(heuristic, not a statistical interval)</span></div>
+        <div class="confidence-range" id="confidenceRange"><div class="cr-fill" id="confidenceFill"></div><div class="cr-point" id="confidencePoint"></div></div>
+        <div class="confidence-labels"><span id="confLow">—</span><span id="confHigh">—</span></div>
+        <div class="confidence-tag" id="confidenceTag">—</div>
+      </div>
+
+      <h3 style="margin:16px 0 10px;">Why this confidence level</h3>
+      <ul class="drivers-list" id="driversList"></ul>
+      <div class="interpretation" id="interpretationBox">—</div>
+
+      <div class="analogue-box">
+        <div class="a-title">Historical analogues</div>
+        <div class="analogue-stat">
+          <span class="n" id="anaBust">—</span>
+          <span class="d">of <span id="anaTotal">—</span> similar atmospheric situations went on to bust</span>
+        </div>
+        <div class="analogue-bar">
+          <div id="anaBar" style="background:var(--coral);height:100%;"></div>
+        </div>
+        <div class="analogue-cases" id="analogueCases"></div>
+      </div>
+
+      <div class="action-box" id="actionBox">
+        <p class="ab-title" id="actionTitle">RECOMMENDED ACTION</p>
+        <p id="actionSummary" style="margin:0;font-size:12.5px;color:var(--text-dim);">—</p>
+        <ul id="actionList"></ul>
+        <p class="ab-note">Decision-support guidance derived from the model's own risk threshold — not authoritative emergency-management advice.</p>
+      </div>
+
+      <div class="replay-card" id="replayCard">
+        <div class="rc-title">Forecast evolution — Day 1 → Day 5</div>
+        <div class="replay-evolution" id="replayEvolution"></div>
+        <div class="rc-title" style="margin-top:14px;">Replay verification</div>
+        <div class="rc-body" id="replayBody"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" style="margin-top:22px;">
+    <h3>Model performance by forecast horizon</h3>
+    <p class="panel-sub" id="evalSub">Loading evaluation metadata…</p>
+    <div class="eval-grid">
+      <div class="eval-card"><div class="e-label">ROC-AUC</div><div class="e-val" id="evalRocAuc">0.87</div><div class="e-note">Overall, all leads</div></div>
+      <div class="eval-card"><div class="e-label">PR-AUC</div><div class="e-val" id="evalPrAuc">0.61</div><div class="e-note">Busts are the minority class</div></div>
+      <div class="eval-card"><div class="e-label">Brier score</div><div class="e-val" id="evalBrier">0.09</div><div class="e-note">Lower is better calibrated</div></div>
+      <div class="eval-card"><div class="e-label">Recall</div><div class="e-val" id="evalRecall">0.79</div><div class="e-note">Busts flagged before verification</div></div>
+    </div>
+    <table class="eval-table">
+      <thead><tr><th>Lead time</th><th>PR-AUC</th><th>Recall</th><th>Brier score</th></tr></thead>
+      <tbody id="evalBody"></tbody>
+    </table>
+
+    <div class="eval-secondary">
+      <div class="diagram-box">
+        <h3 style="font-size:13px;">Reliability diagram</h3>
+        <canvas id="reliabilityCanvas" width="520" height="200"></canvas>
+        <p class="diagram-caption">Illustrative only — the backend does not yet expose a calibration-curve endpoint, so this diagram is a stand-in near the diagonal rather than a plot of the real held-out calibration.</p>
+      </div>
+      <div class="confusion-box">
+        <h3 style="font-size:13px;" id="cmTitle">Confusion matrix — overall test set, threshold 0.5</h3>
+        <div class="confusion" id="confusionGrid"></div>
+        <p class="diagram-caption" id="cmCaption">Loading confusion matrix…</p>
+      </div>
+    </div>
+
+    <h3 style="font-size:13px;margin-top:24px;">Model comparison</h3>
+    <p class="panel-sub" id="comparisonSub">Loading model comparison…</p>
+    <table class="comparison-table">
+      <thead><tr><th>Metric</th><th id="colBaseline">Logistic baseline</th><th id="colMain">Gradient-boosted (calibrated)</th></tr></thead>
+      <tbody id="comparisonBody"></tbody>
+    </table>
+    <p class="comparison-note" id="comparisonNote"></p>
+  </section>
+
+  <section class="panel" style="margin-top:22px;">
+    <h3>Validation methodology</h3>
+    <p class="panel-sub">How this prototype avoids the leakage failure modes common in weather-ML projects.</p>
+    <ul class="methodology-list" id="methodologyList">
+      <li><span class="check">✓</span> Temporal train / validation / test split (no shuffling across time)</li>
+      <li><span class="check">✓</span> Bust-label thresholds computed only from training-period years</li>
+      <li><span class="check">✓</span> No verification (ERA5) variables used as model features</li>
+      <li><span class="check">✓</span> No future observations available at prediction time</li>
+      <li><span class="check">✓</span> Isotonic probability calibration on a held-out validation split</li>
+      <li><span class="check">✓</span> Metrics reported on a held-out test split, never seen in training</li>
+    </ul>
+    <p class="comparison-note" id="methodologyNote">Evaluated on a small prototype sample — see the note below the model-performance section for scope.</p>
+  </section>
+
+  <section class="panel" style="margin-top:22px;">
+    <h3>Data → AI → decision pipeline</h3>
+    <p class="panel-sub">How a forecast becomes a decision-support signal.</p>
+    <div class="pipeline">
+      <div class="pipe-node">HRES / ERA5<br>forecast input<span style="display:block;color:var(--text-faint);font-size:10.5px;margin-top:3px;">(real prototype sample)</span></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-node">Feature engineering<span style="display:block;color:var(--text-faint);font-size:10.5px;margin-top:3px;">spatial + temporal</span></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-node">Forecast-bust ML model<span style="display:block;color:var(--text-faint);font-size:10.5px;margin-top:3px;">calibrated classifier</span></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-outputs">
+        <div class="pipe-node output">Risk probability</div>
+        <div class="pipe-node output">Reliability</div>
+        <div class="pipe-node output">SHAP-style explanation</div>
+        <div class="pipe-node output">Historical analogues</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-node" style="border-color:var(--teal);">Decision support</div>
+    </div>
+  </section>
+
+  <section class="panel" style="margin-top:22px;">
+    <h3>System status</h3>
+    <p class="panel-sub" id="healthSub">Checking component status…</p>
+    <div class="health-grid" id="healthGrid"></div>
+  </section>
+
+  <section class="panel" style="margin-top:22px;">
+    <h3>Active reliability alerts</h3>
+    <p class="panel-sub">Regions currently crossing the high-risk threshold for the selected variable.</p>
+    <div class="alerts-list" id="alertsList"></div>
+  </section>
+
+  <div class="footnote">
+    Prototype note — this interface is served live by FastAPI over a real WeatherBench2 HRES forecast + ERA5 verification sample (three 2019 initialization dates, 2,430 observations: 810 train / 810 validation / 810 test). Bust probabilities, drivers, and historical analogues all come from the trained, calibrated model — nothing on this page is simulated in the browser except the reliability diagram, which is illustrative pending a dedicated calibration-curve endpoint. Because the sample is small and drawn from a single monsoon week, treat the evaluation numbers below as a prototype signal, not a generalized performance claim — see the technical design for the full production plan (multi-year NCMRWF NWP data, XGBoost with isotonic calibration, SHAP explanations).
+  </div>
+
+  <footer class="site">
+    <span>ForecastGuard AI · built for SIH 26079</span>
+    <span>Ministry of Earth Sciences · NCMRWF · Smart Automation theme</span>
+  </footer>
+
+</div>
+
+<script>
+const INDIA_PATHS = {"Andaman and Nicobar":"M490.7 605.2L492.6 610.0L490.3 614.9L489.9 614.7L490.1 613.7L488.7 610.8L487.2 609.9L487.0 607.5L490.7 605.2ZM465.4 532.0L466.7 534.3L466.4 538.4L465.3 539.8L462.9 539.4L462.7 534.4L465.4 532.0ZM468.9 505.3L469.6 508.7L470.5 509.1L469.6 509.2L468.5 513.6L469.8 511.4L470.6 512.0L469.9 516.0L468.9 515.9L468.2 516.9L470.0 516.7L469.1 520.5L465.3 513.0L466.3 511.1L467.2 512.6L468.9 505.3ZM472.6 491.5L474.0 500.1L473.0 501.9L472.8 501.6L472.3 501.1L472.4 500.9L471.4 500.1L471.7 500.8L472.7 501.7L470.6 500.6L472.6 503.6L470.2 503.6L469.3 504.0L468.6 497.8L470.6 496.5L469.5 496.5L469.8 495.6L469.3 493.5L470.4 493.9L470.6 492.2L471.0 492.1L471.6 492.5L472.2 492.4L472.6 492.0L472.6 491.5ZM475.1 478.5L475.1 482.5L475.6 482.4L476.3 483.3L475.8 483.9L475.4 482.7L473.6 483.1L474.8 484.5L475.8 484.5L475.2 486.4L475.2 488.4L474.1 489.7L473.4 488.3L472.6 488.9L473.0 488.9L472.7 489.6L472.8 490.0L473.4 490.6L472.3 490.3L471.8 491.5L472.2 492.3L471.6 492.5L470.6 489.6L471.6 482.0L472.1 482.0L472.4 481.4L472.1 480.6L473.2 480.0L473.0 479.3L474.4 479.4L475.1 478.5Z","Andhra Pradesh":"M271.7 415.3L269.1 415.5L271.6 418.6L264.7 422.1L260.5 423.8L257.0 422.8L254.5 423.1L254.0 422.8L253.7 422.8L246.1 435.4L243.4 435.7L243.1 433.1L242.5 432.7L240.8 432.3L232.9 436.5L229.3 443.7L229.5 445.6L228.7 445.8L228.7 448.5L228.9 453.6L231.6 458.3L230.1 467.7L233.8 481.3L230.6 475.5L230.4 477.7L229.8 475.8L228.8 478.2L230.0 479.8L232.8 480.5L233.7 482.6L232.2 480.5L227.9 479.4L226.4 483.3L222.5 484.6L222.9 486.1L221.5 484.4L219.8 485.1L217.0 483.5L215.9 483.9L216.9 486.3L214.7 488.1L213.0 487.3L211.7 489.9L208.4 488.5L207.4 489.6L206.5 488.3L203.2 488.9L201.5 490.4L200.2 496.3L199.0 495.3L198.5 497.8L196.8 497.8L193.4 496.4L194.4 493.1L196.4 491.4L198.5 492.9L197.9 490.6L200.8 484.8L196.8 483.6L197.2 478.4L193.3 478.9L192.8 477.0L191.4 477.3L191.8 472.9L188.8 473.6L189.4 471.0L186.4 471.3L184.3 475.3L183.2 474.5L179.4 476.5L178.9 473.3L174.2 472.8L174.2 471.7L174.0 474.9L170.7 475.1L171.5 471.5L168.8 466.8L171.2 466.5L171.3 468.9L173.6 470.2L176.8 469.5L178.4 472.4L179.0 470.6L177.0 469.5L178.4 467.9L177.4 467.5L180.3 467.0L180.3 464.8L178.2 463.5L178.1 466.2L176.2 463.4L173.7 463.2L172.8 465.7L169.7 465.2L168.6 462.2L170.3 460.4L168.4 460.6L166.3 458.1L168.3 451.2L166.4 450.6L166.5 448.8L172.3 450.0L173.8 447.6L174.0 444.8L170.3 440.2L171.4 437.3L173.1 437.3L171.3 433.4L172.1 432.0L180.5 431.6L180.1 425.0L182.1 423.2L175.3 420.6L179.7 418.3L178.8 416.7L180.3 409.9L178.1 405.6L180.5 401.5L183.9 400.2L179.2 398.4L183.3 390.6L181.2 388.9L182.3 384.4L180.9 381.2L182.2 379.0L184.8 378.9L186.7 373.9L188.7 373.6L185.2 369.4L186.9 368.2L187.2 364.0L188.9 363.2L193.1 365.3L193.3 361.8L195.7 360.9L195.0 356.7L196.8 354.4L195.7 351.7L199.2 354.1L205.9 354.8L206.1 356.9L208.2 357.0L208.0 359.0L212.2 360.8L213.4 357.7L217.7 360.1L224.2 358.5L227.3 362.0L226.7 366.6L225.1 367.9L226.6 369.6L226.1 373.9L229.9 376.5L232.9 375.6L234.3 378.3L237.0 377.4L239.8 379.6L242.8 384.9L241.7 386.6L243.5 385.3L244.2 387.3L246.3 386.6L247.6 394.3L249.8 392.9L258.4 393.7L266.2 388.8L270.7 390.4L272.7 387.3L271.6 386.1L273.2 383.9L272.1 383.7L272.6 381.8L274.8 379.3L277.7 385.4L280.9 381.2L282.9 382.9L285.8 382.5L285.0 381.1L286.4 379.2L284.9 377.3L287.3 374.6L288.6 375.7L292.3 373.4L290.5 370.2L293.4 371.1L293.5 368.6L294.8 369.9L296.6 366.9L298.9 371.6L299.7 369.8L301.3 373.6L305.3 375.1L309.7 374.4L311.9 371.7L311.6 369.7L314.5 368.7L314.9 369.7L316.3 368.7L315.0 367.5L317.1 367.0L317.9 369.0L306.1 383.8L295.6 389.6L289.7 395.8L288.8 398.2L277.3 404.1L272.8 407.6L270.5 411.4L272.5 413.0L272.6 410.7L272.7 412.0L272.3 415.2L271.7 415.3Z","Arunachal Pradesh":"M533.1 160.7L536.1 165.3L539.0 164.9L533.7 168.4L534.7 171.9L541.5 168.4L540.6 170.1L543.2 174.4L536.5 181.7L539.1 183.1L544.1 180.7L550.4 183.7L552.3 182.6L558.1 186.0L556.4 188.5L558.4 189.5L557.9 192.1L555.4 191.8L548.6 197.6L548.8 200.7L553.3 207.9L548.0 206.0L546.8 202.9L543.3 202.5L541.4 204.1L533.4 205.4L526.4 212.3L522.7 213.4L520.6 216.1L517.1 216.3L516.3 209.1L521.2 207.3L522.3 204.6L529.5 204.7L531.9 202.6L528.7 201.4L529.3 198.9L526.9 195.4L531.1 190.6L524.1 190.8L502.3 198.8L498.3 197.2L498.5 199.5L489.9 207.0L490.4 208.5L483.9 211.2L474.9 211.7L468.1 209.2L466.7 210.8L457.6 212.1L456.0 206.8L456.3 204.7L457.9 204.2L455.9 200.4L449.0 200.3L447.3 198.3L448.8 194.8L447.1 192.8L452.3 193.8L454.1 195.7L459.6 192.8L461.6 194.4L466.2 193.6L469.6 190.2L468.6 187.5L478.7 183.3L478.0 181.2L481.0 177.2L492.2 176.6L497.6 168.3L504.1 165.4L505.5 163.0L508.7 166.7L520.3 169.3L522.9 167.4L522.7 165.7L527.3 162.9L533.1 160.7Z","Assam":"M530.6 191.2L526.9 195.5L529.3 198.9L528.7 201.4L531.9 202.6L529.5 204.7L522.2 204.7L521.2 207.3L512.9 211.5L510.5 211.3L507.9 214.6L502.4 216.6L499.6 220.7L498.8 218.8L493.7 226.5L493.2 231.6L489.7 233.7L489.3 230.7L480.9 239.1L483.3 241.3L483.6 243.8L479.3 249.6L478.3 253.8L476.7 253.8L475.3 261.8L471.3 262.4L470.1 259.6L464.5 267.3L463.6 264.9L459.6 265.0L461.3 255.3L460.2 252.0L464.9 252.5L463.6 250.1L464.8 247.8L470.9 245.6L470.5 243.3L466.4 240.7L468.0 238.2L466.5 238.8L462.9 234.9L458.6 236.6L459.9 231.9L458.6 231.1L458.8 230.6L459.8 230.0L461.2 228.4L454.1 230.0L452.2 227.6L449.3 231.9L447.5 229.3L445.6 232.6L446.7 232.2L446.6 232.5L442.9 233.2L440.9 235.5L440.3 232.8L436.6 233.6L437.2 232.2L435.5 231.0L429.5 232.0L428.7 230.8L427.4 232.1L426.7 229.7L419.9 230.8L415.6 235.3L418.0 238.0L415.2 239.1L414.1 233.7L415.5 231.2L411.8 226.2L412.3 223.9L414.9 222.3L415.0 215.3L420.1 215.0L421.7 212.9L425.4 212.0L430.9 214.6L449.7 213.9L452.9 211.7L456.6 213.0L466.7 210.8L468.1 209.2L474.9 211.7L487.0 210.7L498.5 199.5L498.3 197.2L502.3 198.8L524.1 190.8L530.6 191.2Z","Bihar":"M306.0 199.7L309.3 202.3L315.5 203.2L316.9 205.7L316.0 209.1L322.0 210.8L323.2 212.9L326.5 212.7L326.7 214.8L334.8 212.6L338.9 218.6L342.3 216.7L348.0 217.6L355.6 221.6L362.1 218.3L362.5 221.0L367.2 223.0L369.6 221.2L372.2 222.4L377.6 220.3L380.3 222.7L381.7 219.3L384.0 219.0L383.1 220.2L385.0 223.3L379.0 227.0L375.9 231.6L380.6 236.2L381.0 240.4L378.3 239.3L375.5 241.1L376.6 246.0L371.7 243.0L369.8 244.1L369.6 246.1L366.8 245.5L366.2 248.2L363.5 249.5L361.6 257.9L359.4 257.1L359.0 259.2L356.4 257.6L353.1 257.9L350.3 262.6L347.0 260.8L347.8 258.3L344.2 257.9L342.7 254.4L340.8 255.4L336.7 253.5L335.3 258.4L328.1 259.5L324.4 262.4L324.2 261.2L320.8 262.6L318.8 259.4L316.2 262.1L313.6 262.5L313.1 264.3L309.3 261.0L309.3 258.7L305.8 260.4L303.6 257.2L301.2 259.3L294.2 259.5L295.0 257.5L292.1 254.3L290.8 249.7L291.4 246.0L300.7 241.3L305.5 235.6L309.1 236.8L310.0 235.1L313.0 236.4L315.7 235.4L313.8 232.4L304.7 228.0L303.8 225.3L306.7 225.1L307.0 222.5L301.9 221.0L305.3 217.1L311.6 217.5L308.2 215.2L308.3 212.8L304.7 212.2L302.3 203.7L300.5 203.5L301.9 202.5L301.3 201.4L306.0 199.7Z","Chhattisgarh":"M291.0 268.0L294.4 269.4L295.4 272.7L297.9 273.6L299.5 278.0L302.5 278.7L303.9 277.4L303.1 282.4L305.1 283.4L304.4 287.2L306.5 290.7L307.3 289.5L310.8 290.5L310.9 292.5L307.9 296.6L303.8 298.6L303.8 302.6L296.5 306.1L294.9 309.3L295.8 313.1L293.6 314.3L292.7 316.5L293.9 317.5L292.0 317.7L291.1 320.1L292.4 323.0L289.9 322.5L288.4 327.3L277.8 327.0L274.5 333.5L272.3 332.3L271.9 338.9L273.9 341.5L273.2 348.8L279.2 350.2L279.3 353.0L276.9 354.6L277.0 352.7L274.1 351.9L272.2 353.4L270.1 350.0L266.2 349.8L264.6 348.0L263.4 349.1L262.9 351.8L266.9 354.3L266.2 360.0L269.2 361.6L268.8 367.5L270.3 371.8L267.3 375.8L263.6 377.0L264.8 378.8L260.9 383.1L256.8 384.8L254.1 393.9L249.8 392.9L247.5 394.3L246.3 386.6L244.2 387.3L243.5 385.3L241.7 386.6L242.8 385.0L241.6 381.8L237.1 377.5L234.2 378.2L232.3 375.0L234.4 373.7L232.9 370.3L235.1 365.2L238.6 362.0L239.4 363.9L242.0 364.3L243.8 362.8L242.8 361.5L244.7 360.7L240.3 357.8L238.1 353.6L235.3 354.1L237.2 352.6L235.5 351.3L237.7 351.4L238.2 348.7L235.3 347.1L235.1 345.2L239.5 343.3L239.6 337.9L236.9 337.7L238.8 336.3L238.1 331.3L235.8 329.8L236.4 326.6L240.6 324.0L241.4 315.8L243.2 315.1L245.0 307.7L246.9 308.6L248.9 301.2L252.9 299.5L254.3 301.2L258.5 299.2L261.3 296.7L261.4 292.5L264.6 290.9L264.6 288.4L268.6 287.2L269.3 283.5L265.3 281.7L264.2 279.4L258.3 279.9L257.6 278.2L259.8 275.6L258.4 271.9L261.6 273.8L264.2 272.5L275.6 274.3L280.9 270.8L283.8 272.5L287.2 272.2L291.0 268.0Z","Dadra and Nagar Haveli":"M93.4 344.5L96.9 342.8L98.3 343.8L96.1 345.9L99.2 346.3L98.7 348.8L94.6 347.7L93.4 344.5Z","Daman and Diu":"M52.5 330.8L55.1 331.9L53.5 333.0L55.0 333.5L53.9 336.2L50.8 334.8L52.5 330.8Z","Delhi":"M175.0 173.3L177.3 177.7L175.4 181.4L167.8 178.9L169.6 177.2L169.8 173.6L172.3 172.3L175.0 173.3Z","Goa":"M111.6 434.4L113.9 437.8L118.7 436.9L120.4 444.1L118.8 444.8L119.6 449.2L117.9 451.6L114.7 451.6L112.2 448.3L111.7 443.0L109.8 441.8L111.6 442.1L111.9 441.7L109.9 440.8L107.8 435.6L111.6 434.4Z","Gujarat":"M76.9 255.9L82.6 257.6L80.7 258.4L84.3 259.9L84.8 261.9L86.3 259.9L89.2 260.9L89.8 262.8L93.5 263.5L95.2 260.4L96.8 260.2L96.5 262.1L99.3 262.7L96.5 266.3L99.6 269.8L102.0 267.4L103.0 271.4L101.8 274.3L104.6 275.9L104.7 277.7L107.5 277.5L106.9 281.0L110.7 281.1L111.9 283.3L113.2 282.4L115.9 284.1L116.3 286.4L118.6 286.2L120.8 291.3L123.0 292.8L121.1 297.2L118.9 297.1L116.8 299.7L114.7 299.2L116.2 301.6L117.5 300.4L119.5 302.1L117.5 303.6L115.3 302.8L117.3 308.3L115.8 309.7L116.7 310.8L110.3 313.5L112.0 316.7L109.9 317.5L111.3 320.1L119.8 318.7L120.1 320.1L115.2 320.4L113.0 322.0L112.9 324.0L110.7 324.7L110.5 326.6L106.1 326.6L112.1 330.3L112.9 335.2L107.6 338.8L103.5 335.8L102.6 337.1L104.4 339.2L102.3 342.2L103.1 345.9L100.8 345.9L99.8 347.5L98.3 345.8L96.3 346.7L98.3 344.2L97.0 342.8L93.5 344.4L94.3 345.8L89.9 347.3L90.7 343.3L92.6 342.4L92.8 335.0L89.6 327.1L88.9 326.8L88.6 326.9L88.4 328.2L87.8 328.5L88.3 325.5L87.1 324.5L89.2 320.7L88.2 321.3L88.7 319.6L89.9 319.2L90.0 319.1L90.0 319.0L88.9 319.1L87.8 320.2L87.3 319.0L91.8 316.6L86.1 316.7L86.7 313.5L85.5 310.9L87.0 306.0L90.3 306.5L91.3 305.1L92.6 305.5L93.2 305.1L93.3 304.4L86.2 304.4L85.2 306.1L85.3 305.0L84.9 305.2L84.2 304.0L83.3 303.8L83.8 302.8L83.4 302.3L82.8 302.5L83.8 305.5L82.7 304.6L82.5 307.5L81.9 307.1L82.0 306.4L81.5 306.0L81.9 306.4L81.8 307.1L82.1 307.4L81.2 311.4L80.5 309.0L81.6 308.7L81.6 307.8L79.2 309.2L80.1 310.9L78.7 310.3L80.7 312.1L81.0 315.2L80.6 314.2L79.8 313.5L79.7 313.5L79.5 313.4L79.5 313.5L79.4 313.5L81.7 317.4L77.4 324.0L78.1 326.1L57.9 335.4L54.5 335.8L55.0 333.5L53.5 333.0L54.8 331.1L51.9 330.2L50.6 335.0L39.9 327.9L32.5 319.4L33.5 318.4L33.0 317.0L32.2 318.1L32.1 317.7L31.0 317.1L32.5 319.2L30.1 317.6L17.8 303.8L20.3 300.4L20.3 302.1L22.7 301.5L22.0 303.7L23.4 304.8L28.3 303.2L28.4 301.3L29.9 303.6L32.8 300.5L34.1 302.0L34.8 300.0L35.5 301.1L37.5 299.1L41.1 299.0L42.6 296.7L42.8 296.1L42.5 296.0L42.8 295.9L42.8 295.3L43.7 294.8L44.7 292.6L46.0 291.3L46.9 289.8L47.3 288.5L46.3 288.7L45.6 289.4L44.6 291.4L40.3 290.8L40.4 290.2L40.7 289.8L40.9 289.5L40.9 289.4L40.9 289.4L39.7 290.9L40.5 291.5L34.1 293.0L32.4 295.4L31.0 294.1L27.9 294.5L22.6 293.2L12.5 287.0L11.1 285.3L11.4 285.2L11.4 285.6L12.0 285.7L12.8 284.6L12.0 284.1L13.8 284.1L14.2 283.9L14.4 283.4L12.3 283.9L12.1 283.1L11.5 282.4L10.6 282.3L10.6 281.6L10.2 281.6L9.8 280.2L9.3 280.0L9.4 276.9L14.5 272.5L11.5 273.0L10.0 274.8L9.8 273.5L12.6 271.7L10.4 270.7L14.2 270.8L14.7 264.1L16.8 266.1L18.0 264.5L19.0 265.5L30.4 264.4L32.7 266.5L38.0 266.7L40.2 264.2L48.9 261.6L48.9 265.0L53.3 265.5L59.5 262.0L57.1 261.2L56.9 259.2L59.0 256.4L62.6 257.8L67.1 256.4L72.1 256.6L73.2 257.9L73.6 256.5L74.9 257.5L76.9 255.9Z","Haryana":"M166.3 132.1L173.8 136.2L173.0 138.7L174.7 140.4L179.4 140.7L179.1 141.9L180.5 141.0L182.1 142.6L178.7 147.9L176.0 149.0L173.1 154.6L173.2 167.9L175.0 171.9L169.8 173.6L169.6 177.2L167.7 178.3L168.6 179.8L172.2 179.6L174.0 181.8L177.2 179.8L179.9 181.7L181.0 191.0L175.3 194.3L171.6 193.6L172.4 195.2L170.7 195.2L170.3 196.9L168.6 196.0L170.1 187.1L168.3 185.5L162.1 190.6L162.1 189.2L160.5 189.0L160.8 186.9L157.3 186.3L158.3 189.4L155.2 188.8L154.8 190.0L156.1 193.2L151.2 192.7L150.4 191.3L152.5 188.5L150.7 188.1L153.6 186.9L150.4 182.6L147.5 181.8L143.4 177.7L141.7 171.5L142.6 169.8L139.7 167.1L140.4 164.8L134.4 165.4L129.9 161.9L125.2 163.4L123.9 161.0L125.6 159.5L125.4 154.9L122.7 154.2L124.4 152.7L123.9 151.0L126.2 151.9L129.1 150.1L132.7 152.9L134.5 151.7L134.6 153.9L136.3 153.2L137.3 155.0L135.9 156.7L137.1 159.1L141.3 153.8L143.7 155.1L147.5 153.5L152.7 155.0L156.5 152.6L155.0 151.4L156.7 147.9L155.7 146.8L158.0 147.8L159.7 146.0L160.4 148.0L163.3 148.4L164.0 145.9L162.3 144.7L165.4 143.3L166.3 141.2L169.5 142.1L166.3 132.1Z","Himachal Pradesh":"M167.1 85.3L169.3 89.3L173.4 90.4L177.1 93.6L184.4 90.6L189.5 98.3L196.9 94.8L197.2 97.5L195.1 99.8L198.2 99.9L199.7 101.6L198.2 105.1L201.1 105.6L201.2 107.6L204.5 110.0L203.0 114.1L205.6 117.7L203.2 119.6L208.7 127.7L206.4 127.9L204.9 125.9L198.8 125.9L196.6 124.2L187.7 126.9L183.9 134.6L186.2 139.3L181.6 142.3L173.2 139.0L173.8 136.2L169.0 132.1L163.4 129.9L163.9 125.7L160.0 124.3L158.8 121.2L157.5 123.6L155.1 123.9L149.9 111.0L143.9 108.4L145.4 106.7L144.7 105.3L150.6 101.5L149.0 99.8L150.2 94.9L147.8 92.1L151.6 92.0L159.3 86.3L163.8 86.8L167.1 85.3Z","Jammu and Kashmir":"M187.9 41.4L191.9 40.5L189.7 43.0L194.5 56.1L200.6 57.8L208.5 63.3L208.0 65.6L203.2 68.6L204.7 74.6L203.3 76.9L210.2 85.4L216.6 86.4L215.5 90.4L219.1 95.0L219.2 97.9L214.7 100.3L212.7 99.8L210.8 102.6L208.4 103.1L204.7 100.5L204.0 96.1L195.7 100.5L196.9 94.8L189.5 98.3L184.4 90.6L177.1 93.6L173.4 90.4L169.3 89.3L166.6 84.9L165.7 86.4L159.3 86.3L150.8 92.3L148.2 91.4L150.4 97.1L142.4 104.5L134.2 100.3L127.2 100.3L126.1 97.8L127.1 93.2L124.0 95.2L119.9 91.6L120.5 89.7L114.2 86.0L117.4 80.9L113.1 75.6L118.1 72.7L118.9 70.5L118.0 69.2L111.7 69.0L113.4 64.7L112.0 62.8L109.4 62.6L112.9 58.5L113.1 56.1L116.6 56.2L121.0 53.9L147.1 59.7L160.9 54.1L164.8 54.8L166.1 51.5L170.8 51.2L171.2 49.2L173.8 48.9L186.5 40.0L187.9 41.4Z","Jharkhand":"M370.0 243.9L375.5 245.1L375.4 248.2L379.2 252.1L376.2 254.7L377.8 255.6L378.0 258.1L375.3 258.4L376.1 261.9L372.7 265.1L373.8 267.0L370.0 267.7L369.4 270.4L365.2 269.2L366.3 272.0L365.3 273.5L356.7 273.4L356.7 276.3L350.0 277.4L347.4 281.6L342.6 278.3L342.6 280.1L339.0 281.0L338.5 286.1L340.1 287.4L342.4 287.1L345.7 290.2L352.0 290.3L349.9 291.5L349.6 294.5L353.4 296.5L354.1 298.5L356.1 298.6L356.0 301.0L358.5 305.0L355.9 305.8L351.2 303.2L349.9 304.0L342.4 298.7L340.8 300.9L342.2 306.3L339.9 310.7L337.2 310.2L337.9 307.8L335.6 309.0L330.2 306.8L327.1 310.0L324.5 308.0L322.3 308.3L324.9 304.2L323.9 300.4L309.2 303.3L303.8 299.6L305.3 297.3L307.9 296.6L311.1 291.2L307.3 289.5L306.5 290.7L304.4 287.2L305.1 283.4L303.1 282.4L303.9 277.4L302.5 278.7L299.5 278.0L297.9 273.6L295.4 272.7L294.4 269.4L290.9 268.0L293.3 262.7L292.3 259.9L301.2 259.3L303.6 257.2L305.8 260.4L309.4 258.7L309.3 261.0L313.1 264.3L313.6 262.5L316.2 262.1L318.8 259.4L320.8 262.6L324.2 261.2L324.4 262.4L328.1 259.5L335.3 258.4L336.7 253.5L340.8 255.4L342.7 254.4L344.2 257.9L347.8 258.3L347.0 260.8L350.3 262.6L353.1 257.9L356.4 257.6L359.0 259.2L359.4 257.1L361.6 257.9L364.0 248.7L366.2 248.2L366.8 245.5L369.6 246.1L370.0 243.9Z","Karnataka":"M175.4 381.8L178.6 382.2L177.7 383.8L182.3 384.4L181.2 388.9L183.3 390.6L179.2 398.4L183.9 400.0L180.5 401.5L178.1 405.6L180.3 409.9L178.8 416.7L179.7 418.3L175.3 420.6L182.1 424.2L180.1 425.0L180.5 431.6L174.3 431.0L171.3 433.4L173.2 436.8L171.4 437.3L170.3 440.2L174.0 444.8L173.9 446.8L172.3 450.0L166.6 448.6L166.4 450.6L168.3 451.2L166.3 458.1L168.4 460.6L170.3 460.4L168.6 462.2L169.8 465.3L172.8 465.7L173.7 463.2L176.2 463.4L178.1 466.2L178.2 463.5L180.3 464.8L180.3 467.0L177.4 467.5L178.4 467.9L177.0 469.5L179.0 470.6L178.4 472.4L176.8 469.5L173.6 470.2L171.3 468.9L171.2 466.5L168.8 466.8L171.5 471.5L170.7 475.2L174.0 474.9L174.2 471.7L174.2 472.8L178.9 473.3L179.9 476.4L183.2 474.5L184.3 475.3L186.4 471.3L189.4 471.0L188.8 473.6L190.6 472.3L192.0 473.2L191.4 477.3L192.8 477.0L193.3 478.9L197.2 478.4L196.8 483.6L200.8 484.8L197.9 490.6L197.8 491.5L198.5 492.1L198.5 492.9L196.4 491.4L194.0 494.9L186.5 492.8L184.7 496.7L182.1 496.8L182.6 501.8L179.7 506.0L184.6 506.7L185.4 507.9L183.5 511.2L180.0 511.4L178.8 515.0L175.4 514.0L172.9 515.7L170.9 513.9L168.9 514.3L167.8 518.5L162.5 517.8L161.4 516.0L159.7 516.7L159.6 514.9L153.9 513.0L153.9 510.6L149.3 511.1L148.1 508.6L145.5 508.2L140.8 504.3L139.8 501.9L140.7 500.1L139.4 500.9L138.1 499.2L139.1 498.3L133.8 496.8L132.7 494.2L130.4 494.9L125.9 473.0L123.4 469.5L121.3 459.1L120.3 458.6L120.7 459.6L119.8 459.6L118.6 455.2L115.7 453.9L116.4 453.2L115.9 451.9L119.0 450.7L120.0 446.3L118.8 444.8L120.4 444.1L118.7 436.9L115.7 436.6L118.2 434.3L120.8 434.5L122.8 429.2L120.9 428.9L123.3 428.0L123.4 425.4L120.2 424.5L120.9 422.1L118.7 420.1L119.1 419.1L121.3 419.4L123.0 416.8L124.8 419.0L127.0 417.9L127.2 415.7L131.4 414.6L131.7 411.2L134.6 411.0L137.0 413.2L138.4 410.9L145.7 410.8L145.4 404.8L143.9 402.3L144.9 400.4L148.1 402.6L149.7 401.7L150.6 403.5L154.2 402.7L155.2 404.1L156.5 402.5L159.1 403.8L158.2 398.1L161.2 396.8L161.8 394.8L165.0 396.4L166.8 393.5L165.9 392.0L169.3 391.7L170.0 386.3L172.9 386.9L175.4 381.8Z","Kerala":"M132.8 494.2L133.8 496.8L139.1 498.3L138.0 498.9L139.3 500.8L140.7 500.1L139.8 501.9L140.8 504.3L143.8 507.0L148.0 508.5L149.5 511.2L153.9 510.6L154.1 513.1L159.6 514.9L160.1 517.3L156.1 518.7L156.4 520.8L162.1 523.0L160.5 526.4L165.6 525.8L165.0 527.1L166.9 529.2L164.2 531.5L168.9 534.6L168.4 537.4L167.1 537.5L167.4 544.1L170.3 545.8L175.1 543.2L176.2 545.9L174.4 548.1L175.8 550.7L173.7 557.9L177.3 558.1L178.4 560.1L173.4 569.8L175.4 572.7L173.8 575.2L175.9 579.1L174.4 580.1L173.9 583.7L170.4 582.3L162.2 572.0L158.3 561.7L156.4 550.7L157.3 553.3L157.9 552.5L157.9 553.1L158.0 553.8L158.5 555.8L158.0 552.6L158.5 553.4L158.9 553.6L158.7 554.0L158.7 556.0L159.4 556.5L158.8 557.8L158.6 559.5L161.0 559.8L161.4 559.4L159.8 558.7L159.0 552.7L157.9 552.2L158.0 552.2L157.6 551.3L157.8 551.0L157.6 551.3L157.6 551.4L157.6 551.5L156.9 549.4L156.6 549.4L156.9 548.4L155.8 547.1L155.9 548.2L156.2 548.8L156.0 548.6L156.4 549.4L156.2 549.7L156.4 549.7L156.4 550.1L156.4 550.1L156.5 550.4L156.5 550.6L156.1 550.5L153.1 539.1L150.2 534.2L149.2 527.2L144.6 520.5L142.4 514.0L141.5 514.6L138.6 511.1L139.6 511.4L139.9 511.2L140.2 511.7L140.5 511.7L140.0 510.9L137.9 509.9L139.2 509.8L138.7 507.9L140.5 507.3L137.1 507.9L137.3 509.5L136.7 509.9L137.1 508.6L130.3 494.9L132.8 494.2Z","Madhya Pradesh":"M196.8 212.6L200.6 214.8L203.4 214.0L208.7 216.3L208.4 218.5L211.4 223.1L207.7 227.2L208.9 228.4L206.2 234.0L204.0 235.0L205.1 237.5L198.0 238.7L195.4 242.5L198.2 247.4L196.1 248.2L196.0 250.0L192.9 252.9L194.9 256.7L194.0 259.5L197.1 264.5L199.4 262.1L204.9 266.4L208.2 262.9L206.6 257.2L204.1 257.9L204.6 253.7L201.6 250.7L200.6 244.8L197.9 244.2L202.2 241.1L204.3 242.8L205.3 241.4L204.2 241.3L203.7 240.0L205.7 241.4L206.6 238.8L208.4 242.5L206.4 242.2L204.7 243.9L205.8 245.4L206.5 243.1L208.0 243.0L206.5 246.8L208.7 246.1L208.9 244.5L209.2 247.1L210.4 246.1L211.2 247.8L214.1 247.6L214.0 245.0L215.4 245.7L213.7 244.4L214.6 243.2L215.5 244.7L215.8 244.1L218.1 244.6L216.4 247.7L218.1 248.3L219.5 246.4L224.9 248.1L224.9 245.2L232.7 241.4L235.8 246.5L233.1 248.7L233.8 249.9L237.2 249.1L236.8 248.0L239.3 248.6L239.0 247.8L239.1 246.9L240.6 248.9L242.5 248.8L241.1 247.3L243.5 247.8L244.5 246.1L243.0 251.1L248.2 251.0L249.3 252.2L250.8 251.3L251.9 246.6L256.0 248.5L257.5 246.1L258.3 248.8L263.8 249.8L265.0 253.4L269.5 253.5L269.0 255.2L270.4 254.5L271.3 257.7L273.5 258.0L273.7 255.9L275.8 257.0L278.3 256.0L280.9 258.0L279.3 258.9L280.3 264.2L278.2 267.3L281.1 270.7L277.7 273.2L275.2 274.3L264.2 272.5L262.2 273.8L259.3 271.5L258.1 272.2L259.8 275.6L257.6 278.2L258.3 279.9L264.2 279.4L265.3 281.7L269.3 283.5L268.6 287.2L264.6 288.4L264.6 290.9L261.4 292.5L261.3 296.7L258.5 299.2L254.3 301.2L252.9 299.5L248.9 301.2L246.9 308.6L245.0 307.7L243.2 315.1L241.4 315.8L240.4 323.3L235.5 322.5L232.7 317.6L226.2 319.5L222.7 317.9L219.0 319.1L218.1 316.5L213.2 315.5L213.0 317.0L207.2 318.2L207.5 320.3L198.0 320.0L197.0 317.6L188.7 322.3L181.9 322.7L180.1 322.4L178.8 319.3L182.4 319.1L181.1 316.0L179.9 314.6L176.3 314.7L167.0 318.0L166.8 320.7L163.7 323.3L163.7 326.1L161.1 326.1L159.0 328.5L155.1 328.3L153.7 322.5L137.1 321.8L131.0 317.4L124.5 316.4L122.4 309.5L119.4 311.3L116.7 310.9L115.8 309.7L117.3 308.3L115.3 302.8L117.5 303.6L119.5 302.1L117.5 300.4L116.2 301.6L114.7 299.2L116.8 299.7L118.9 297.1L121.1 297.2L123.0 292.8L120.0 288.7L128.1 285.8L123.7 283.4L125.5 280.8L131.7 277.4L131.1 272.5L132.7 269.4L130.9 264.8L128.2 264.3L130.2 260.7L127.4 259.8L129.4 256.6L129.1 254.1L130.8 256.9L133.3 254.5L130.0 254.1L129.7 250.7L133.7 252.8L135.9 249.1L139.4 249.1L137.8 252.2L140.8 252.7L138.7 253.7L136.8 251.8L137.0 255.6L148.8 255.4L150.1 260.9L147.9 260.5L146.7 261.9L148.6 265.1L147.0 267.2L148.7 268.5L146.2 270.6L142.6 269.0L141.5 271.6L143.9 274.0L145.9 274.8L146.2 271.9L147.6 272.9L151.4 271.3L151.1 269.5L154.4 268.1L155.4 263.4L156.0 265.7L160.8 265.4L162.0 266.7L165.0 264.3L165.2 266.6L168.9 267.4L169.8 265.9L167.3 259.3L169.2 259.1L170.2 260.8L172.1 258.6L171.4 255.8L167.1 253.6L169.9 252.5L168.1 249.8L178.4 247.7L177.7 241.7L176.2 241.5L174.7 243.8L166.5 243.8L162.6 241.2L161.0 235.6L163.1 232.5L166.0 231.8L173.2 225.2L186.3 218.9L187.8 216.8L191.5 216.3L191.8 214.0L196.8 212.6Z","Maharashtra":"M122.2 309.4L125.1 316.7L131.0 317.4L138.6 322.2L153.7 322.5L154.4 327.5L157.2 328.5L163.7 326.1L163.7 323.3L166.8 320.7L167.0 318.0L176.3 314.7L179.9 314.6L181.1 316.0L182.4 319.1L178.8 319.3L180.1 322.4L181.9 322.7L188.7 322.3L197.0 317.6L198.0 320.0L207.5 320.3L207.2 318.2L213.0 317.0L213.2 315.5L218.1 316.5L219.0 319.1L222.7 317.9L226.2 319.5L232.7 317.6L235.5 322.5L240.6 323.8L236.0 328.1L238.8 336.3L236.9 337.7L239.6 337.9L239.5 343.3L235.1 345.2L235.3 347.1L238.2 348.7L237.7 351.4L235.5 351.3L237.2 352.6L235.3 354.1L238.1 353.6L240.3 357.8L244.7 360.7L242.8 361.5L243.8 362.8L242.0 364.3L239.4 363.9L238.6 362.0L236.8 363.3L232.9 370.3L234.4 373.8L229.9 376.5L225.8 373.4L226.6 369.6L225.1 367.9L226.7 366.6L227.3 362.0L223.7 358.1L217.7 360.1L213.4 357.7L212.2 360.8L208.0 359.0L208.2 357.0L206.1 356.9L205.9 354.8L199.2 354.1L195.7 351.7L196.8 354.4L195.0 356.7L195.7 360.9L193.3 361.8L193.1 365.3L188.9 363.2L187.2 364.0L186.9 368.2L185.2 369.4L188.7 373.6L184.8 376.5L184.8 378.9L182.2 379.0L180.8 381.5L181.7 383.8L177.7 383.8L178.6 382.2L176.9 380.9L172.9 386.9L170.0 386.3L169.3 391.7L165.9 392.0L166.8 393.5L165.0 396.4L161.8 394.8L161.2 396.8L158.2 398.1L159.1 403.8L156.5 402.5L155.2 404.1L154.2 402.7L150.6 403.5L149.7 401.7L148.1 402.6L144.9 400.4L143.9 402.3L145.4 404.8L145.7 410.8L138.4 410.9L137.0 413.2L134.6 411.0L131.7 411.2L131.4 414.6L127.2 415.7L127.0 417.9L124.8 419.0L123.0 416.8L121.3 419.4L119.1 419.2L120.9 422.1L120.2 424.6L123.6 426.0L123.2 428.3L120.9 428.9L122.8 429.2L120.8 434.5L118.2 434.3L114.4 437.9L111.5 434.1L107.8 435.5L106.1 431.8L103.5 428.9L102.6 421.9L100.9 419.7L102.4 418.9L100.9 418.0L99.7 409.5L100.4 409.9L101.0 409.2L98.5 404.0L99.5 403.9L98.1 401.9L97.4 393.4L95.5 391.1L95.8 389.2L93.6 385.6L94.2 384.4L96.6 387.0L96.6 383.5L95.7 384.0L95.4 384.7L93.3 382.9L92.2 376.1L92.4 373.9L94.6 373.8L93.2 372.0L94.1 370.5L94.5 370.7L95.2 370.4L95.5 370.1L95.5 370.0L94.2 368.8L91.3 372.2L91.7 366.4L91.0 367.4L90.7 366.7L91.0 366.6L91.1 366.0L91.9 365.0L91.9 364.7L90.8 366.1L90.9 359.5L89.6 359.2L88.3 352.9L89.0 350.8L90.3 351.5L89.9 347.3L92.5 345.5L98.4 349.0L100.8 345.9L103.0 346.0L102.3 342.2L104.4 339.2L102.5 337.0L103.6 335.7L107.6 338.8L112.9 335.2L112.1 330.3L109.6 329.8L109.2 327.7L107.4 327.8L106.1 326.6L110.5 326.6L113.0 322.0L120.3 319.2L111.3 320.1L109.9 317.5L111.9 316.0L110.3 313.5L122.2 309.4Z","Manipur":"M504.5 237.0L504.1 239.7L506.5 240.8L504.7 245.7L507.7 247.3L507.6 249.5L499.8 263.2L496.6 272.9L490.1 271.4L488.9 269.8L484.2 271.0L481.2 267.8L479.4 269.5L479.3 268.3L476.5 269.1L474.1 267.7L476.7 253.8L478.3 253.8L482.2 244.7L483.6 243.8L486.1 246.0L490.5 238.7L493.8 238.1L499.4 240.1L504.5 237.0Z","Meghalaya":"M452.8 227.9L454.1 230.0L461.3 228.5L458.6 231.1L459.9 231.9L458.6 236.6L462.9 234.9L466.5 238.8L468.0 238.2L466.4 240.7L470.5 243.3L470.8 245.7L465.6 247.2L463.7 249.4L457.0 246.2L448.8 247.5L441.8 245.9L426.2 247.1L414.5 244.1L415.2 239.1L418.0 237.8L415.6 235.1L419.9 230.8L426.7 229.7L427.4 232.1L428.7 230.8L429.5 232.0L435.5 231.0L437.2 232.2L436.6 233.6L440.3 232.8L440.9 235.5L442.9 233.2L445.0 233.2L446.6 232.5L445.6 232.6L447.5 229.3L449.3 231.9L450.5 228.8L452.8 227.9Z","Mizoram":"M470.8 261.6L475.0 262.2L474.1 267.7L481.0 268.9L483.0 276.4L482.0 287.2L480.2 289.9L477.1 289.0L477.8 291.6L476.3 295.8L478.5 304.8L477.5 306.4L475.5 306.0L474.8 310.3L473.7 309.4L472.9 311.1L469.2 306.9L467.2 310.5L465.6 296.5L462.7 291.3L463.4 285.1L460.5 273.7L461.9 271.8L461.2 265.0L463.6 264.9L464.4 267.3L470.1 259.6L470.8 261.6Z","Nagaland":"M516.3 209.1L517.1 216.3L513.8 220.9L515.1 222.2L514.8 227.8L516.1 228.4L513.0 231.8L513.5 234.7L510.7 238.7L505.6 240.7L504.1 239.7L504.4 236.0L499.5 240.1L493.8 238.1L490.5 238.7L486.2 245.9L484.2 245.1L483.3 241.3L480.9 239.1L489.3 230.7L489.7 233.7L493.2 231.6L493.7 226.5L498.8 218.8L499.6 220.7L502.4 216.6L507.9 214.6L511.1 211.0L512.9 211.5L516.3 209.1Z","Odisha":"M343.2 299.4L349.9 304.0L351.2 303.2L355.4 305.7L355.3 307.1L360.1 308.4L361.3 312.7L365.1 310.9L365.8 313.9L369.5 315.5L369.8 317.8L362.7 319.6L357.3 326.1L360.1 333.5L357.4 334.6L356.0 337.7L361.5 335.8L355.6 340.4L356.3 343.4L350.4 346.8L351.0 346.8L350.5 347.7L350.5 347.8L350.6 348.1L350.5 347.7L351.0 347.6L351.3 346.7L352.3 346.0L351.6 346.6L350.9 347.8L350.0 348.8L349.5 348.9L349.1 350.5L347.2 348.8L347.1 349.0L346.8 348.7L346.7 348.8L346.4 348.9L346.2 349.5L348.2 350.6L347.7 351.0L348.6 350.9L339.9 353.4L330.7 357.5L318.5 367.8L316.4 366.9L314.9 369.7L314.5 368.7L311.6 369.7L311.9 371.7L309.7 374.4L301.6 373.9L296.6 366.9L294.8 369.9L293.5 368.6L293.4 371.1L290.5 370.2L292.3 373.4L288.6 375.7L287.3 374.6L284.9 377.3L286.4 379.2L285.0 381.1L285.8 382.5L282.9 382.9L280.9 381.2L277.7 385.4L274.8 379.3L272.6 381.8L272.1 383.7L273.2 383.9L271.6 386.1L272.7 387.3L270.8 390.3L266.2 388.8L258.4 393.7L254.1 393.9L256.8 384.8L260.9 383.1L264.8 378.8L263.6 377.0L267.3 375.8L270.3 371.8L268.8 367.5L269.2 361.6L266.2 360.0L266.9 354.3L262.9 351.8L263.2 349.3L264.6 348.0L266.2 349.8L270.1 350.0L272.2 353.4L274.2 351.9L277.0 352.7L276.9 354.6L279.1 353.4L279.2 350.2L273.2 348.8L273.9 341.5L271.9 338.9L272.3 332.3L274.5 333.5L277.8 327.0L283.9 326.5L287.0 328.0L289.9 322.5L292.4 323.0L291.1 320.1L292.0 317.7L293.9 317.5L292.7 316.5L293.6 314.3L295.8 313.1L294.9 309.3L296.6 305.9L303.8 302.6L303.6 299.4L309.2 303.3L323.9 300.4L324.9 304.2L322.5 308.5L324.5 308.0L327.1 310.0L329.6 306.9L335.6 309.0L337.9 307.8L337.2 310.2L339.9 310.7L342.5 303.9L340.9 300.5L343.2 299.4Z","Punjab":"M149.4 98.5L150.6 101.7L144.7 105.3L145.4 106.7L143.9 108.4L149.9 111.0L155.1 123.9L157.5 123.6L158.8 121.2L160.0 124.3L163.7 125.5L163.4 129.9L167.9 134.1L165.0 135.1L168.2 136.4L169.5 142.2L166.3 141.2L165.4 143.3L162.3 144.7L164.0 145.9L163.3 148.4L160.4 148.0L159.7 146.0L158.0 147.8L155.7 146.8L156.7 147.9L155.0 151.4L156.5 152.6L152.7 155.0L147.5 153.5L143.7 155.1L141.3 153.8L137.1 159.1L135.9 156.7L137.3 155.0L136.3 153.2L134.6 153.9L134.5 151.7L132.7 152.9L129.1 150.1L126.0 151.9L111.8 150.6L113.3 146.3L111.5 142.3L124.5 128.6L127.1 128.1L123.5 127.2L126.1 120.8L124.6 120.0L123.7 115.5L125.3 112.3L131.3 108.7L137.4 108.3L139.8 105.3L139.1 103.1L141.8 103.2L142.4 104.5L149.4 98.5Z","Rajasthan":"M111.8 150.4L123.8 151.1L124.4 152.7L122.7 154.2L125.4 154.9L125.6 159.5L123.9 161.0L125.2 163.4L129.9 161.9L134.4 165.4L140.4 164.8L139.7 167.1L142.6 169.8L141.7 171.5L143.4 177.7L147.5 181.8L150.4 182.6L153.6 186.9L150.7 188.1L152.5 188.5L150.4 191.3L151.2 192.7L156.1 193.2L154.8 190.0L155.2 188.8L158.3 189.4L157.3 186.3L160.8 186.9L160.5 189.0L162.1 189.2L162.1 190.6L167.2 185.7L168.9 185.9L170.1 187.1L169.0 196.8L172.4 195.2L171.6 193.6L176.5 194.0L177.2 199.4L179.0 202.0L182.5 203.1L183.6 206.0L180.3 208.1L185.2 209.5L178.9 212.7L179.4 215.1L180.3 213.0L185.1 211.2L190.2 212.8L192.0 210.9L194.8 211.5L193.2 214.1L191.7 214.1L191.5 216.3L187.8 216.8L186.3 218.9L173.2 225.2L166.0 231.8L163.1 232.5L161.0 235.6L162.6 241.2L166.5 243.8L174.7 243.8L176.2 241.5L177.7 241.7L178.4 247.7L168.1 249.8L169.9 252.5L167.1 253.6L171.4 255.8L172.1 258.6L170.2 260.8L169.2 259.1L167.3 259.3L169.8 265.9L168.9 267.4L165.2 266.6L165.0 264.3L162.0 266.7L160.8 265.4L156.0 265.7L155.4 263.4L154.4 268.1L151.1 269.5L151.4 271.3L147.6 272.9L146.2 271.9L145.9 274.8L143.9 274.0L141.5 271.6L142.6 269.0L146.2 270.6L148.7 268.5L147.0 267.2L148.6 265.1L146.7 261.9L147.9 260.5L150.1 260.9L148.8 255.4L137.0 255.6L136.8 251.8L138.7 253.7L140.8 252.7L137.8 252.2L139.4 249.1L135.9 249.1L133.7 252.8L130.0 250.5L130.0 254.1L133.3 254.9L130.8 256.9L129.1 254.1L129.4 256.6L127.4 259.8L130.2 260.7L128.2 264.3L130.9 264.8L132.7 269.4L131.1 272.5L131.7 277.4L125.5 280.8L123.7 283.4L128.1 285.8L120.0 288.7L113.3 282.5L111.9 283.3L110.7 281.1L106.9 281.0L107.5 277.5L104.7 277.7L104.6 275.9L101.8 274.3L103.0 271.4L102.0 267.4L99.6 269.8L96.5 266.3L99.3 262.7L96.5 262.1L96.7 260.1L93.5 263.5L89.8 262.8L89.2 260.9L86.3 259.9L84.8 261.9L84.3 259.9L80.7 258.4L82.6 257.6L79.1 257.7L76.9 255.9L74.9 257.5L73.6 256.5L73.2 257.9L72.1 256.6L62.6 257.8L59.2 256.6L54.9 247.1L50.8 242.2L50.6 236.1L43.3 236.0L39.8 231.1L41.2 219.0L34.5 218.2L28.2 213.9L30.1 206.4L38.3 198.9L40.9 193.3L44.9 189.8L48.6 189.6L52.3 195.7L54.8 196.0L74.0 190.9L74.7 187.5L79.4 182.8L83.2 174.7L93.8 169.5L100.1 158.9L102.3 151.2L113.3 146.1L111.8 150.4Z","Sikkim":"M391.9 188.0L395.4 189.7L396.4 192.1L394.2 198.7L396.9 204.3L393.6 207.3L390.3 206.2L387.9 208.4L381.4 207.3L380.0 205.6L380.5 200.1L383.5 193.3L382.0 191.0L391.9 188.0Z","Tamil Nadu":"M227.6 479.5L234.0 482.7L233.9 481.5L234.0 481.4L234.0 481.2L234.0 481.2L234.0 481.1L234.3 484.5L232.6 494.4L230.8 500.7L228.1 503.2L224.7 511.2L222.8 511.9L223.0 510.3L221.0 510.5L222.6 512.2L221.3 512.7L224.0 513.8L223.2 518.7L225.0 530.4L222.7 530.3L222.2 531.6L225.0 533.7L225.6 544.0L224.7 544.5L222.9 544.5L223.6 544.0L220.8 542.7L220.5 543.7L219.3 543.8L221.4 544.2L221.6 544.0L221.8 544.2L222.8 544.5L218.8 543.9L220.0 543.3L219.2 543.0L214.4 544.8L213.2 547.1L213.9 549.2L206.9 560.2L209.5 563.6L212.4 564.4L205.6 564.6L196.8 568.2L193.0 572.4L192.8 574.6L193.6 574.2L194.2 575.0L191.8 577.0L191.1 582.6L181.8 587.3L181.3 588.5L176.8 587.6L172.6 584.1L175.9 579.3L173.8 575.2L175.4 572.7L173.4 569.8L178.4 560.1L177.3 558.1L173.7 557.9L175.8 550.7L174.4 548.1L176.2 545.9L175.1 543.2L170.3 545.8L167.4 544.1L167.1 537.5L168.4 537.4L168.9 534.6L164.2 531.5L166.9 529.2L165.0 527.1L165.6 525.8L160.5 526.4L162.1 523.0L156.4 520.8L156.1 518.7L161.4 516.0L162.5 517.8L167.8 518.5L168.9 514.3L170.9 513.9L172.9 515.7L175.4 514.0L178.8 515.0L180.0 511.4L183.5 511.2L185.4 507.8L179.6 505.1L182.4 502.8L182.1 496.8L184.7 496.7L186.5 492.8L188.4 492.4L189.5 494.1L190.7 493.2L194.0 494.9L193.4 496.4L198.5 497.8L203.2 488.9L206.5 488.3L206.6 489.6L207.4 489.6L208.4 488.5L211.7 489.9L213.0 487.3L214.7 488.1L216.9 486.3L215.9 483.9L217.0 483.5L219.8 485.1L221.5 484.4L222.9 486.1L222.5 484.6L226.4 483.3L228.5 480.3L227.6 479.5Z","Tripura":"M459.1 259.5L460.8 262.2L459.6 265.0L461.8 266.2L461.7 272.6L459.8 276.9L459.0 275.1L457.0 277.1L454.9 275.4L455.1 280.4L451.2 284.7L452.5 288.1L448.4 291.1L444.6 284.4L444.6 288.8L443.4 288.1L439.7 275.2L440.9 275.2L442.0 270.3L443.8 270.5L443.7 267.8L447.9 268.4L449.3 265.4L451.1 267.2L450.7 265.1L453.7 267.2L454.1 263.3L457.9 262.3L459.1 259.5Z","Uttar Pradesh":"M181.9 141.8L188.5 145.1L184.2 152.6L185.9 156.4L188.9 155.9L189.6 159.1L196.1 154.1L197.7 154.6L201.3 158.8L207.4 160.9L203.4 163.7L206.0 164.8L206.9 167.0L211.3 167.4L211.8 169.5L215.6 170.6L216.6 172.9L223.5 172.2L223.7 173.9L225.0 173.1L227.2 175.7L230.1 173.4L237.7 179.0L237.4 176.7L238.6 176.2L250.8 182.8L252.9 187.3L255.2 186.8L263.6 192.9L267.1 191.5L274.3 196.4L279.2 195.6L279.8 199.9L288.4 200.9L290.8 203.4L292.2 200.4L296.5 200.6L302.1 203.5L304.7 212.2L308.3 212.8L308.2 215.2L311.6 217.5L305.3 217.1L304.6 219.1L301.9 219.6L301.9 221.0L307.0 222.5L306.8 225.1L303.9 225.2L303.8 226.4L306.9 230.2L313.8 232.4L315.7 235.4L313.0 236.4L310.0 235.1L309.1 236.8L305.5 235.6L300.7 241.3L291.1 246.3L291.5 252.6L295.0 257.5L292.2 260.0L293.3 262.7L288.3 271.6L283.6 272.5L278.4 267.5L280.3 264.2L279.2 262.3L279.3 258.9L281.0 258.9L280.2 257.1L274.0 255.9L273.5 258.0L271.3 257.7L270.4 254.5L269.0 255.2L269.5 253.5L265.0 253.4L263.8 249.8L258.3 248.8L257.5 246.1L256.0 248.5L251.9 246.6L250.8 251.3L249.3 252.2L248.2 251.0L243.0 251.1L244.5 246.1L243.5 247.8L241.1 247.3L242.5 248.8L240.6 248.9L239.1 246.9L239.3 248.6L233.1 249.6L235.8 246.5L232.7 241.4L224.9 245.2L225.1 248.0L219.5 246.4L218.1 248.3L216.4 247.7L218.1 244.6L215.5 244.7L214.4 243.2L214.6 247.3L211.3 247.8L210.4 246.1L209.2 247.1L208.9 244.5L208.7 246.1L206.4 246.7L207.9 243.0L206.5 243.1L205.8 245.4L204.7 244.0L206.4 242.2L208.4 242.5L207.0 241.1L207.5 238.8L205.6 239.8L206.1 240.7L205.7 241.4L203.7 240.0L205.3 241.4L204.3 242.8L202.2 241.1L197.9 244.2L200.6 244.8L201.6 250.7L204.6 253.7L204.1 257.9L206.6 257.2L208.2 262.9L204.9 266.4L199.4 262.1L197.6 264.5L196.3 263.9L196.7 262.3L193.9 259.4L194.9 256.7L192.9 252.9L196.0 250.0L196.1 248.2L198.2 247.4L195.4 242.5L198.0 238.7L205.1 237.5L204.0 235.0L206.2 234.0L208.9 228.4L207.7 227.2L211.2 223.7L211.2 221.1L208.4 218.5L208.7 216.3L203.4 214.0L200.6 214.8L196.5 212.5L193.8 213.3L193.9 210.9L190.2 212.8L185.1 211.2L179.0 214.6L178.9 212.7L184.8 210.2L185.2 209.5L180.6 208.6L183.6 206.0L182.5 203.1L179.0 202.0L176.8 197.8L176.1 193.9L181.0 191.0L179.7 188.3L181.1 185.0L176.5 178.8L177.0 175.7L174.5 174.0L172.5 158.0L174.4 151.6L178.7 147.9L181.9 141.8Z","Uttarakhand":"M209.7 120.6L216.7 129.2L220.0 131.1L225.0 130.4L232.0 134.7L231.9 138.4L238.9 140.3L247.2 144.9L234.8 155.0L235.6 158.1L232.4 161.1L233.5 165.9L230.6 167.9L227.6 175.7L225.0 173.1L223.7 173.9L223.5 172.2L216.6 172.9L215.6 170.6L211.8 169.5L211.3 167.4L206.9 167.0L206.0 164.8L203.4 163.7L207.4 160.9L201.3 158.8L198.8 155.0L196.1 154.1L189.6 159.1L188.9 155.9L185.9 156.4L184.2 152.6L188.5 145.1L181.5 141.7L186.2 139.3L183.9 134.6L187.7 126.9L196.6 124.2L198.8 125.9L204.9 125.9L207.7 127.9L208.8 127.6L207.4 123.5L209.7 120.6Z","West Bengal":"M382.1 207.5L387.9 208.4L390.9 206.1L394.8 207.3L396.2 207.8L396.3 211.0L399.1 211.2L401.1 213.8L405.8 212.7L410.9 214.4L410.6 215.6L414.9 215.9L415.1 221.0L412.2 224.0L412.6 226.5L410.7 225.4L410.0 228.0L411.0 228.8L409.2 230.7L401.8 227.3L400.4 222.0L398.0 220.7L397.1 222.6L400.0 224.9L396.5 224.2L395.7 225.3L391.4 220.6L387.9 219.1L387.5 217.3L386.8 218.1L386.0 220.4L388.8 220.8L389.6 222.8L383.1 227.1L383.2 229.5L381.3 231.7L381.9 234.1L384.8 233.8L390.0 239.9L395.0 239.6L395.7 242.8L398.9 244.2L397.2 246.7L388.1 246.1L387.3 251.1L385.8 252.7L384.0 250.8L382.3 251.3L383.0 252.8L379.9 256.7L386.0 262.3L393.6 264.5L392.8 267.7L394.3 270.3L390.6 272.8L390.3 277.2L394.8 280.1L393.3 284.9L398.5 285.8L395.7 290.0L398.0 293.1L397.6 296.8L395.0 295.3L396.9 296.5L397.4 297.6L397.8 297.8L397.5 298.6L396.7 298.7L396.2 299.1L395.7 299.8L395.8 301.3L394.2 298.8L392.8 299.5L392.8 299.3L392.6 299.3L392.6 299.1L392.4 299.0L392.6 298.5L392.5 298.1L392.4 299.0L392.7 299.5L396.3 302.9L395.8 302.7L395.2 302.7L393.6 306.1L393.0 305.8L392.3 305.7L391.7 305.7L392.2 305.2L392.7 304.1L392.8 303.5L392.3 303.2L391.6 305.6L391.8 305.8L392.4 306.0L391.4 307.8L391.1 306.8L390.5 306.2L391.2 311.7L390.0 310.5L390.5 311.9L389.9 311.9L389.7 312.9L389.0 312.4L389.6 311.7L389.6 311.4L389.6 311.1L389.0 310.7L389.5 310.2L389.9 310.4L390.0 310.4L390.1 310.1L390.2 309.5L390.2 309.3L389.0 310.7L389.5 311.7L388.8 311.8L388.7 312.1L388.6 310.8L388.5 310.7L388.1 310.7L388.4 309.8L387.4 312.3L387.0 312.0L387.4 311.6L387.1 310.6L386.8 310.6L387.1 314.0L386.4 313.5L386.7 312.1L386.6 311.8L386.4 311.5L386.4 312.9L384.7 312.3L385.6 313.1L384.6 313.8L384.6 314.0L384.7 314.2L385.0 314.8L384.4 314.0L385.0 314.8L384.8 315.4L382.8 312.4L383.9 308.5L383.5 306.7L381.0 305.8L381.7 303.9L380.6 305.6L379.4 305.1L378.6 301.9L378.2 301.3L377.5 301.2L378.5 304.8L379.3 305.7L379.8 306.0L382.2 306.3L383.2 308.0L380.8 309.7L380.3 308.7L379.5 307.9L379.0 307.9L380.7 309.8L378.3 314.0L369.8 317.8L369.1 314.8L365.7 313.7L365.1 310.9L361.3 312.7L361.0 309.2L355.3 307.1L358.5 304.1L356.2 301.5L356.1 298.6L354.1 298.5L353.4 296.5L349.6 294.5L349.9 291.5L351.5 291.1L352.0 290.3L345.6 290.1L342.4 287.1L340.1 287.4L338.4 284.7L339.2 280.6L342.6 280.1L342.4 278.3L347.4 281.6L350.0 277.4L356.7 276.3L356.7 273.4L365.3 273.5L366.3 272.0L365.2 269.2L369.4 270.4L370.0 267.7L373.8 266.9L372.7 265.1L376.1 261.9L375.3 258.4L378.0 258.1L377.8 255.6L376.2 254.7L379.2 252.1L375.3 248.0L376.9 244.4L375.1 241.8L378.2 239.3L380.2 240.3L381.0 239.9L380.6 236.2L375.9 231.6L376.7 229.1L385.2 222.9L383.1 220.2L384.0 219.0L381.7 219.3L383.3 214.6L382.3 210.3L379.6 207.9L380.0 205.6L382.1 207.5Z"};
+const INDIA_LABEL_PT = {"Andaman and Nicobar":[474.0,525.5],"Andhra Pradesh":[219.5,418.3],"Arunachal Pradesh":[506.4,189.2],"Assam":[471.4,222.9],"Bihar":[334.2,236.4],"Chhattisgarh":[266.4,324.7],"Dadra and Nagar Haveli":[96.5,346.1],"Daman and Diu":[54.1,333.5],"Delhi":[172.9,177.1],"Goa":[115.0,442.8],"Gujarat":[68.2,296.1],"Haryana":[158.2,166.0],"Himachal Pradesh":[175.3,111.5],"Jammu and Kashmir":[163.5,74.8],"Jharkhand":[333.3,276.9],"Karnataka":[155.0,455.9],"Kerala":[159.6,541.0],"Madhya Pradesh":[195.3,279.2],"Maharashtra":[153.9,361.0],"Manipur":[491.3,255.2],"Meghalaya":[441.9,239.3],"Mizoram":[471.5,283.8],"Nagaland":[502.5,228.7],"Odisha":[311.7,339.9],"Punjab":[140.6,133.2],"Rajasthan":[111.0,218.3],"Sikkim":[388.6,198.6],"Tamil Nadu":[197.4,529.9],"Tripura":[450.7,275.1],"Uttar Pradesh":[238.4,211.5],"Uttarakhand":[212.6,146.9],"West Bengal":[379.3,273.7]};
+const INDIA_VIEWBOX = '0 0 560 620';
+
+/* ============================================================
+   ForecastGuard AI — dashboard wired to the FastAPI backend.
+   Bust probabilities, drivers, and historical analogues below all
+   come from GET calls to the real trained model; nothing here is
+   simulated in the browser except the reliability diagram (see
+   drawReliabilityDiagram — explicitly captioned as illustrative
+   because no calibration-curve endpoint exists on the backend yet).
+   ============================================================ */
+
+// Point this at wherever `uvicorn app.main:app` is actually running.
+const API_BASE = window.FORECASTGUARD_API_BASE || "http://127.0.0.1:8000";
+
+const REGIONS = [
+  "Jammu and Kashmir","Punjab","Delhi","Uttar Pradesh",
+  "Rajasthan","Gujarat","Maharashtra","Madhya Pradesh",
+  "Bihar","West Bengal","Odisha","Assam",
+  "Karnataka","Andhra Pradesh","Tamil Nadu","Kerala"
+];
+const DISPLAY_NAME = { "Jammu and Kashmir":"Jammu & Kashmir", "Delhi":"Delhi NCR" };
+function displayName(r){ return DISPLAY_NAME[r] || r; }
+
+// NOTE ON THE VARIABLE DROPDOWN: the trained model outputs a single overall
+// bust probability per (state, date, lead_day) — there is no separate
+// probability per weather variable. Changing this dropdown does NOT change
+// any fetched probability; it only changes which field is highlighted in
+// the "forecast snapshot" mini-grid in the detail panel, so the demo isn't
+// implying a per-variable model that doesn't exist.
+const VAR_LABELS = {rain:"Rainfall", temp:"Temperature", wind:"Wind field", pressure:"Sea-level pressure"};
+
+function fmtDate(d){
+  return new Date(d+"T00:00:00").toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"});
+}
+
+/* ---------------- tiny deterministic RNG, used ONLY for the
+   illustrative reliability diagram (no calibration-curve endpoint
+   exists on the backend yet) ---------------- */
+function hashStr(s){
+  let h = 1779033703 ^ s.length;
+  for (let i = 0; i < s.length; i++){
+    h = Math.imul(h ^ s.charCodeAt(i), 3432918353);
+    h = (h << 13) | (h >>> 19);
+  }
+  return function(){
+    h = Math.imul(h ^ (h >>> 16), 2246822507);
+    h = Math.imul(h ^ (h >>> 13), 3266489909);
+    h ^= h >>> 16;
+    return (h >>> 0) / 4294967296;
+  };
+}
+
+/* ---------------- API layer + caching ----------------
+   One cache per endpoint, matching the 3 core prediction endpoints
+   1:1, so re-rendering (e.g. re-selecting a state you've already
+   viewed) doesn't re-hit the network. */
+const mapCache = {};      // key: `${date}|${lead}`          -> /forecast/map response
+const predictCache = {};  // key: `${state}|${date}|${lead}` -> /forecast/predict response
+const profileCache = {};  // key: `${state}|${date}`         -> /forecast/day_profile response
+
+async function apiGet(path, params){
+  const url = new URL(API_BASE + path);
+  Object.entries(params || {}).forEach(([k,v]) => url.searchParams.set(k, v));
+  const res = await fetch(url);
+  if(!res.ok){
+    let detail = "";
+    try{ detail = (await res.json()).detail || ""; }catch(e){}
+    throw new Error(`${res.status} ${res.statusText}${detail ? " — "+detail : ""}`);
+  }
+  return res.json();
+}
+
+async function getMap(date, lead){
+  const key = `${date}|${lead}`;
+  if(!mapCache[key]) mapCache[key] = await apiGet("/forecast/map", {date, lead_day: lead});
+  return mapCache[key];
+}
+async function getPredict(stateName, date, lead){
+  const key = `${stateName}|${date}|${lead}`;
+  if(!predictCache[key]) predictCache[key] = await apiGet("/forecast/predict", {state: stateName, date, lead_day: lead});
+  return predictCache[key];
+}
+async function getProfile(stateName, date){
+  const key = `${stateName}|${date}`;
+  if(!profileCache[key]) profileCache[key] = await apiGet("/forecast/day_profile", {state: stateName, date});
+  return profileCache[key];
+}
+
+/* ---------------- app state ---------------- */
+let state = { day: 5, variable: "rain", date: null, region: "Odisha", replayMode: false };
+let currentMapCells = {};   // state name -> cell, from the most recent /forecast/map fetch
+let metricsData = null;     // /model/metrics, fetched once at init
+let confusionData = null;   // /model/confusion_matrix, fetched once at init
+let healthData = null;      // /health, fetched once at init
+
+/* ---------------- status pill ---------------- */
+function setStatus(online, msg){
+  document.getElementById("statusDot").classList.toggle("offline", !online);
+  document.getElementById("statusText").textContent = msg || (online ? "Live" : "Backend unreachable");
+  document.getElementById("statusPill").title = online
+    ? "Connected to the ForecastGuard FastAPI backend"
+    : `Could not reach ${API_BASE} — start it with: uvicorn app.main:app --reload`;
+
+  const stripSystem = document.getElementById("stripSystem");
+  const stripSystemVal = document.getElementById("stripSystemVal");
+  stripSystem.classList.toggle("warn", !online);
+  stripSystemVal.textContent = online ? "Operational" : "Degraded";
+}
+
+/* ---------------- system health panel ---------------- */
+const HEALTH_LABELS = {
+  backend_api: "Backend API", model: "Model", forecast_data: "Forecast data",
+  explanation_engine: "Explanation", analogue_engine: "Analogue engine",
+};
+const HEALTH_OK_VALUES = new Set(["online","loaded","available","ready"]);
+function renderSystemHealth(){
+  const grid = document.getElementById("healthGrid");
+  const sub = document.getElementById("healthSub");
+  if(!healthData || !healthData.components){
+    sub.textContent = "Could not reach the backend to check component status.";
+    grid.innerHTML = "";
+    return;
+  }
+  sub.textContent = healthData.status === "operational"
+    ? "All components reachable and reporting normally."
+    : `System degraded — ${healthData.detail || "one or more components unavailable"}.`;
+  grid.innerHTML = "";
+  Object.entries(healthData.components).forEach(([key, val])=>{
+    const ok = HEALTH_OK_VALUES.has(val);
+    const div = document.createElement("div");
+    div.className = "health-item" + (ok ? "" : " bad");
+    div.innerHTML = `<span class="h-dot"></span><span>${HEALTH_LABELS[key]||key}: <b style="color:${ok?'var(--teal)':'var(--coral)'}">${val.toUpperCase()}</b></span>`;
+    grid.appendChild(div);
+  });
+}
+
+/* ---------------- day tabs ---------------- */
+const dayTabs = document.getElementById("dayTabs");
+for(let d=1; d<=10; d++){
+  const btn = document.createElement("button");
+  btn.className = "day-tab" + (d===state.day ? " active":"");
+  btn.textContent = "D"+d;
+  btn.setAttribute("data-day", d);
+  btn.addEventListener("click", ()=>{ state.day=d; renderAll(); });
+  dayTabs.appendChild(btn);
+}
+
+/* ---------------- build the India map ---------------- */
+const svg = document.getElementById("indiaSvg");
+svg.setAttribute("viewBox", INDIA_VIEWBOX);
+const tracked = new Set(REGIONS);
+const stateEls = {};
+Object.keys(INDIA_PATHS).forEach(name=>{
+  const p = document.createElementNS("http://www.w3.org/2000/svg","path");
+  p.setAttribute("d", INDIA_PATHS[name]);
+  p.setAttribute("class", "state-path" + (tracked.has(name) ? " tracked":""));
+  p.setAttribute("fill", tracked.has(name) ? "#24344F" : "#182338");
+  p.setAttribute("fill-rule","evenodd");
+  if(tracked.has(name)){
+    p.addEventListener("click", ()=>{ state.region=name; renderAll(); });
+    p.addEventListener("mousemove", (e)=> showTooltip(e, name));
+    p.addEventListener("mouseleave", hideTooltip);
+  }
+  svg.appendChild(p);
+  stateEls[name] = p;
+});
+
+const tooltip = document.getElementById("mapTooltip");
+const mapWrap = document.getElementById("mapWrap");
+function showTooltip(e, name){
+  const rect = mapWrap.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  tooltip.style.left = x + "px";
+  tooltip.style.top = y + "px";
+  tooltip.style.opacity = "1";
+  const cell = currentMapCells[name];
+  document.getElementById("mtName").textContent = displayName(name);
+  document.getElementById("mtVal").textContent = cell ? `${Math.round(cell.bust_probability*100)}% bust probability` : "Loading…";
+}
+function hideTooltip(){ tooltip.style.opacity = "0"; }
+
+/* ---------------- date picker, populated from /model/available_dates ---------------- */
+function populateDateSelect(dates){
+  const sel = document.getElementById("dateInput");
+  sel.innerHTML = "";
+  dates.forEach(d=>{
+    const opt = document.createElement("option");
+    opt.value = d;
+    opt.textContent = fmtDate(d);
+    sel.appendChild(opt);
+  });
+  sel.value = state.date;
+}
+document.getElementById("dateInput").addEventListener("change", e=>{
+  state.date = e.target.value; state.replayMode = false;
+  document.getElementById("replayCard").classList.remove("show");
+  renderAll();
+});
+document.getElementById("varInput").addEventListener("change", e=>{ state.variable = e.target.value; renderAll(); });
+
+/* ---------------- main render ---------------- */
+async function renderAll(){
+  document.getElementById("dateInput").value = state.date;
+  document.getElementById("varInput").value = state.variable;
+  document.querySelectorAll(".day-tab").forEach(t=>{
+    t.classList.toggle("active", Number(t.getAttribute("data-day"))===state.day);
+  });
+
+  let ranked = [];
+  try{
+    const mapData = await getMap(state.date, state.day);
+    currentMapCells = {};
+    mapData.cells.forEach(c=> currentMapCells[c.state] = c);
+    ranked = mapData.cells.slice().sort((a,b)=> b.bust_probability - a.bust_probability);
+
+    REGIONS.forEach(name=>{
+      const c = currentMapCells[name];
+      const el = stateEls[name];
+      if(el && c){
+        el.setAttribute("fill", c.risk_color);
+        el.setAttribute("fill-opacity", 0.85);
+        el.classList.toggle("selected", name===state.region);
+      }
+    });
+
+    const rankList = document.getElementById("rankList");
+    rankList.innerHTML = "";
+    ranked.forEach(c=>{
+      const row = document.createElement("li");
+      row.className = "rank-row" + (c.state===state.region ? " selected":"");
+      row.setAttribute("tabindex","0");
+      row.innerHTML = `
+        <span class="rr-name">${displayName(c.state)}</span>
+        <span class="rr-bar-track"><span class="rr-bar-fill" style="width:${Math.round(c.bust_probability*100)}%;background:${c.risk_color}"></span></span>
+        <span class="rr-val" style="color:${c.risk_color}">${Math.round(c.bust_probability*100)}%</span>`;
+      row.addEventListener("click", ()=>{ state.region=c.state; renderAll(); });
+      row.addEventListener("keypress", e=>{ if(e.key==="Enter"){ state.region=c.state; renderAll(); }});
+      rankList.appendChild(row);
+    });
+
+    document.getElementById("stripDay").textContent = "Day "+state.day;
+    const hotspots = ranked.filter(c=> c.risk_level==="High" || c.risk_level==="Very High");
+    const hotspotsBox = document.getElementById("hotspotsBox");
+    if(hotspots.length===0){
+      hotspotsBox.style.display = "none";
+    }else{
+      hotspotsBox.style.display = "block";
+      document.getElementById("hotspotCount").textContent = hotspots.length;
+      document.getElementById("hotspotList").innerHTML = hotspots.map(c=>
+        `<li>${displayName(c.state)} — <b style="color:${c.risk_color}">${Math.round(c.bust_probability*100)}%</b></li>`
+      ).join("");
+    }
+
+    setStatus(true);
+  }catch(err){
+    console.error("forecast/map failed:", err);
+    setStatus(false);
+    document.getElementById("rankList").innerHTML =
+      `<li style="color:var(--coral);font-size:13px;padding:8px 0;">Couldn't load the map from the backend (${err.message}).</li>`;
+  }
+
+  // selected-region detail
+  const varLabel = VAR_LABELS[state.variable];
+  const dateFmt = fmtDate(state.date);
+  try{
+    const detail = await getPredict(state.region, state.date, state.day);
+    const risk = { label: detail.risk_level, color: detail.risk_color };
+
+    document.getElementById("heroBust").textContent = Math.round(detail.bust_probability*100)+"%";
+    document.getElementById("heroBust").style.color = risk.color;
+    document.getElementById("heroTag").textContent = risk.label + " confidence";
+    document.getElementById("heroTag").style.background = risk.color+"26";
+    document.getElementById("heroTag").style.color = risk.color;
+    document.getElementById("heroRegion").textContent = displayName(state.region);
+    document.getElementById("heroLead").textContent = "Day "+state.day;
+    document.getElementById("heroVar").textContent = varLabel;
+
+    document.getElementById("detRegion").textContent = displayName(state.region);
+    document.getElementById("detMeta").textContent = `Day ${state.day} · ${varLabel} · issued ${dateFmt} · ${detail.season} season`;
+    document.getElementById("detBust").textContent = Math.round(detail.bust_probability*100)+"%";
+    document.getElementById("detBust").style.color = risk.color;
+    document.getElementById("detBustFill").style.width = Math.round(detail.bust_probability*100)+"%";
+    document.getElementById("detBustFill").style.background = risk.color;
+    document.getElementById("detRel").textContent = Math.round(detail.reliability*100)+"%";
+    document.getElementById("detRelFill").style.width = Math.round(detail.reliability*100)+"%";
+    renderConfidenceRange(detail.bust_probability, state.day);
+
+    // forecast snapshot — highlight the field matching the selected
+    // variable (see the note above VAR_LABELS: the model itself only
+    // outputs one overall probability, not a per-variable one)
+    const snap = detail.forecast_snapshot;
+    document.getElementById("snapRain").textContent = snap.rainfall_mm + " mm";
+    document.getElementById("snapTemp").textContent = snap.temperature_c + " °C";
+    document.getElementById("snapWind").textContent = snap.wind_speed_10m_kmh + " km/h";
+    document.getElementById("snapPressure").textContent = snap.pressure_hpa + " hPa";
+    document.querySelectorAll("#snapshotGrid .snapshot-item").forEach(el=>{
+      el.classList.toggle("match", el.getAttribute("data-field")===state.variable);
+    });
+
+    const driversList = document.getElementById("driversList");
+    driversList.innerHTML = "";
+    if(detail.drivers && detail.drivers.length){
+      detail.drivers.forEach(d=>{
+        const li = document.createElement("li");
+        const arrow = d.direction === "increases_risk" ? "▲" : "▼";
+        li.innerHTML = `<span class="marker"></span><span><b>${d.label}</b> ${arrow} (${d.direction.replace("_"," ")})</span>`;
+        driversList.appendChild(li);
+      });
+    } else {
+      driversList.innerHTML = `<li>No per-prediction explanation available (${detail.explanation_method}).</li>`;
+    }
+
+    const interpretationBox = document.getElementById("interpretationBox");
+    if(detail.drivers && detail.drivers.length){
+      const risers = detail.drivers.filter(d=>d.direction==="increases_risk").slice(0,3).map(d=>d.label.toLowerCase());
+      interpretationBox.textContent = risers.length
+        ? `The model considers this forecast ${detail.risk_level.toLowerCase()}-risk primarily because of ${risers.join(", ")}.`
+        : `No single factor dominates this forecast — the ${detail.risk_level.toLowerCase()}-risk estimate reflects a combination of smaller effects (method: ${detail.explanation_method}).`;
+    } else {
+      interpretationBox.textContent = "No plain-language interpretation available for this forecast.";
+    }
+
+    const ana = detail.historical_analogues;
+    const analogueCases = document.getElementById("analogueCases");
+    if(ana){
+      document.getElementById("anaBust").textContent = ana.bust_count;
+      document.getElementById("anaTotal").textContent = ana.k;
+      document.getElementById("anaBar").style.width = Math.round(ana.bust_rate*100)+"%";
+      if(ana.example_cases && ana.example_cases.length){
+        analogueCases.innerHTML = ana.example_cases.slice(0,5).map(c=>
+          `<div class="analogue-case"><span>${fmtDate(c.init_date)} · Day ${c.lead_day} · ${c.region}</span><span class="ac-bust" style="color:${c.bust? 'var(--coral)':'var(--teal)'}">${c.bust ? "BUSTED":"NORMAL"}</span></div>`
+        ).join("");
+      } else {
+        analogueCases.innerHTML = "";
+      }
+    } else {
+      document.getElementById("anaBust").textContent = "—";
+      document.getElementById("anaTotal").textContent = "—";
+      document.getElementById("anaBar").style.width = "0%";
+      analogueCases.innerHTML = "";
+    }
+
+    renderActionBox(detail);
+
+    // degradation chart across D1-10 for the selected region — shows
+    // forecast reliability deteriorating as lead time increases
+    document.getElementById("trendTitle").textContent = "Lead-time risk — "+displayName(state.region);
+    try{
+      const profile = await getProfile(state.region, state.date);
+      drawDegradationChart(profile.profile);
+    }catch(err){
+      console.error("day_profile failed:", err);
+      const canvas = document.getElementById("degradationCanvas");
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      ctx.fillStyle = "#EF5B48";
+      ctx.font = "12px -apple-system, sans-serif";
+      ctx.fillText(`Couldn't load the lead-time trend (${err.message}).`, 10, 20);
+    }
+
+    // alerts: top 3 highest-risk regions for this day, each needs its top
+    // driver — fetch /forecast/predict for just those 3 (cheap; the
+    // selected region's call above is already cached if it's one of them)
+    const alertsList = document.getElementById("alertsList");
+    const topAlerts = ranked.slice(0,3).filter(c=>c.bust_probability>=0.4);
+    if(topAlerts.length===0){
+      alertsList.innerHTML = `<div class="alert-item med" style="border-left-color:#34C9A6"><div><p class="a-title">No regions above the high-risk threshold</p><p class="a-body">All forecasts for Day ${state.day} currently sit within normal error ranges.</p></div></div>`;
+    } else {
+      try{
+        const detailed = await Promise.all(topAlerts.map(c=> getPredict(c.state, state.date, state.day)));
+        alertsList.innerHTML = "";
+        detailed.forEach((d, i)=>{
+          const c = topAlerts[i];
+          const topDriver = (d.drivers && d.drivers[0]) ? d.drivers[0].label.toLowerCase() : "no dominant driver identified";
+          // priority rule, defined explicitly (not arbitrary ranking):
+          // P1 >=70% bust probability = immediate review, P2 55-70% = monitor, P3 <55% = low priority
+          let pClass, pLabel;
+          if(c.bust_probability >= 0.70){ pClass="p1"; pLabel="P1 · Immediate review"; }
+          else if(c.bust_probability >= 0.55){ pClass="p2"; pLabel="P2 · Monitor"; }
+          else { pClass="p3"; pLabel="P3 · Low priority"; }
+          const div = document.createElement("div");
+          div.className = "alert-item" + (c.bust_probability<0.6 ? " med":"");
+          div.innerHTML = `
+            <div class="a-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 3L2 20h20L12 3z" stroke="${c.risk_color}" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 9v5" stroke="${c.risk_color}" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="17" r="1" fill="${c.risk_color}"/></svg>
+            </div>
+            <div>
+              <p class="a-title">${displayName(c.state)} · Day ${state.day} forecast is ${c.risk_level.toLowerCase()} confidence<span class="priority-badge ${pClass}">${pLabel}</span></p>
+              <p class="a-body">Bust probability ${Math.round(c.bust_probability*100)}%. Top factor: ${topDriver}.</p>
+            </div>`;
+          alertsList.appendChild(div);
+        });
+      }catch(err){
+        console.error("alerts predict failed:", err);
+        alertsList.innerHTML = `<div style="color:var(--coral);font-size:12.5px;">Couldn't load alert details (${err.message}).</div>`;
+      }
+    }
+  }catch(err){
+    console.error("forecast/predict failed:", err);
+    document.getElementById("driversList").innerHTML =
+      `<li style="color:var(--coral)">Couldn't load this region's forecast from the backend (${err.message}).</li>`;
+  }
+
+  renderEvalSection();
+  drawReliabilityDiagram();
+}
+
+/* ---------------- model confidence band ----------------
+   Not a statistically-valid prediction interval - the trained model
+   only outputs a point probability. This is an explicit, labeled
+   heuristic: half-width scales with the MEASURED Brier score for this
+   lead day (higher Brier = less calibrated = wider band), clamped to a
+   readable range. Swap for real ensembles/conformal prediction later. */
+function renderConfidenceRange(prob, day){
+  const el = document.getElementById("confidenceRange");
+  if(!metricsData){ el.style.display="none"; return; }
+  el.style.display = "block";
+  const leadRow = metricsData.by_lead_day.find(r=>r.lead_day===day);
+  const brier = leadRow ? leadRow.brier : 0.2;
+  const halfWidth = Math.min(0.25, Math.max(0.05, brier * 0.9));
+  const low = Math.max(0, prob - halfWidth);
+  const high = Math.min(1, prob + halfWidth);
+  document.getElementById("confidenceFill").style.left = (low*100)+"%";
+  document.getElementById("confidenceFill").style.width = ((high-low)*100)+"%";
+  document.getElementById("confidencePoint").style.left = (prob*100)+"%";
+  document.getElementById("confLow").textContent = Math.round(low*100)+"%";
+  document.getElementById("confHigh").textContent = Math.round(high*100)+"%";
+  const confLevel = brier < 0.15 ? "High" : brier < 0.2 ? "Moderate" : "Low";
+  document.getElementById("confidenceTag").textContent =
+    `Confidence: ${confLevel} — band width derived from the measured Brier score (${brier.toFixed(2)}) at Day ${day}, not a fitted prediction interval.`;
+}
+
+/* ---------------- action / recommendation layer ----------------
+   Decision-support framing tied directly to the model's own risk
+   threshold - not a claim that the model issues emergency guidance. */
+function renderActionBox(detail){
+  const box = document.getElementById("actionBox");
+  const title = document.getElementById("actionTitle");
+  const summary = document.getElementById("actionSummary");
+  const list = document.getElementById("actionList");
+  const level = detail.risk_level;
+  box.style.borderLeftColor = detail.risk_color;
+  box.style.borderLeftWidth = "3px";
+  if(level === "Very High" || level === "High"){
+    title.innerHTML = `⚠ RECOMMENDED ACTION <span style="color:${detail.risk_color}">— ${level.toUpperCase()} FORECAST BUST RISK</span>`;
+    summary.textContent = `The Day-${detail.lead_day} forecast for ${displayName(detail.state)} shows ${level.toLowerCase()} uncertainty.`;
+    list.innerHTML = `
+      <li>Verify against the latest forecast cycle before acting on this lead time</li>
+      <li>Avoid relying on the Day-${detail.lead_day} estimate alone for this region</li>
+      <li>Monitor subsequent forecast updates as the lead time shortens</li>`;
+  } else if(level === "Moderate"){
+    title.innerHTML = `RECOMMENDED ACTION <span style="color:${detail.risk_color}">— MODERATE CONFIDENCE</span>`;
+    summary.textContent = `The Day-${detail.lead_day} forecast for ${displayName(detail.state)} is within a normal but non-trivial uncertainty range.`;
+    list.innerHTML = `
+      <li>Treat this forecast as indicative rather than final</li>
+      <li>Re-check closer to the event if the decision is weather-sensitive</li>`;
+  } else {
+    title.innerHTML = `RECOMMENDED ACTION <span style="color:${detail.risk_color}">— WITHIN NORMAL RANGE</span>`;
+    summary.textContent = `The Day-${detail.lead_day} forecast for ${displayName(detail.state)} sits within its typical error range for this lead time.`;
+    list.innerHTML = `<li>No elevated action needed based on forecast-bust risk alone</li>`;
+  }
+}
+
+function riskColorFor(label){
+  // mirrors backend/app/services/predictor.py's risk_level() palette —
+  // /forecast/day_profile returns a risk_level string but no color, so
+  // this reproduces the same thresholds/colors client-side.
+  const map = {"Very Low":"#34C9A6","Low":"#8BD17C","Moderate":"#F5C242","High":"#F2924B","Very High":"#E5484D"};
+  return map[label] || "#5B9CF2";
+}
+
+/* ---------------- model performance (fetched once at init, re-rendered per day) ---------------- */
+function renderEvalSection(){
+  if(!metricsData) return;
+  const m = metricsData.calibrated_model_metrics;
+  document.getElementById("evalRocAuc").textContent = m.roc_auc.toFixed(2);
+  document.getElementById("evalPrAuc").textContent = m.pr_auc.toFixed(2);
+  document.getElementById("evalBrier").textContent = m.brier.toFixed(2);
+  document.getElementById("evalRecall").textContent = m.recall.toFixed(2);
+
+  const trainDates = metricsData.train_dates.map(fmtDate).join(", ");
+  const valDates = metricsData.val_dates.map(fmtDate).join(", ");
+  const testDates = metricsData.test_dates.map(fmtDate).join(", ");
+  document.getElementById("evalSub").textContent =
+    `${metricsData.evaluation_note}. Trained on ${trainDates}, calibrated on ${valDates}, tested on ${testDates} (${metricsData.test_rows} test rows).`;
+  const methodologyNote = document.getElementById("methodologyNote");
+  if(methodologyNote) methodologyNote.textContent = `${metricsData.evaluation_note}, so treat these checks as prototype-scale validation, not a production guarantee.`;
+
+  const evalBody = document.getElementById("evalBody");
+  evalBody.innerHTML = "";
+  const leadRows = [1,2,3,5,7,10];
+  metricsData.by_lead_day
+    .filter(r=> leadRows.includes(r.lead_day))
+    .forEach(r=>{
+      const tr = document.createElement("tr");
+      if(r.lead_day===state.day) tr.style.background = "rgba(91,156,242,0.08)";
+      tr.innerHTML = `<td class="lead">Day ${r.lead_day}</td><td>${r.pr_auc.toFixed(2)}</td><td>${r.recall.toFixed(2)}</td><td>${r.brier.toFixed(2)}</td>`;
+      evalBody.appendChild(tr);
+    });
+}
+
+function renderModelComparison(){
+  if(!metricsData) return;
+  const base = metricsData.baseline_metrics;
+  const main = metricsData.calibrated_model_metrics;
+  document.getElementById("colBaseline").textContent = "Logistic baseline";
+  document.getElementById("colMain").textContent = metricsData.used_xgboost ? "XGBoost (calibrated)" : "Gradient-boosted (calibrated)";
+  const rows = [
+    ["ROC-AUC","roc_auc"], ["PR-AUC","pr_auc"], ["Precision","precision"],
+    ["Recall","recall"], ["F1 score","f1"], ["Brier score","brier"],
+  ];
+  const body = document.getElementById("comparisonBody");
+  body.innerHTML = "";
+  rows.forEach(([label, key])=>{
+    const lowerIsBetter = key === "brier";
+    const baseBetter = lowerIsBetter ? base[key] < main[key] : base[key] > main[key];
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td class="metric">${label}</td>
+      <td class="${baseBetter ? 'win':''}">${base[key].toFixed(2)}</td>
+      <td class="${!baseBetter ? 'win':''}">${main[key].toFixed(2)}</td>`;
+    body.appendChild(tr);
+  });
+  document.getElementById("comparisonSub").textContent =
+    `Same train/calibration/test split as above — the gradient-boosted model is the one this dashboard uses live; the logistic model is the baseline it's compared against.`;
+  document.getElementById("comparisonNote").textContent =
+    metricsData.used_xgboost
+      ? "Gradient-boosted model provides substantially better forecast-bust discrimination than the linear baseline on this prototype sample."
+      : "XGBoost wasn't available in this environment — metadata.used_xgboost is false, so the 'gradient-boosted' column is a HistGradientBoostingClassifier fallback (see model_name), not literal XGBoost. Directionally similar comparison still holds.";
+}
+
+function renderConfusion(){
+  const cmGrid = document.getElementById("confusionGrid");
+  const cmCaption = document.getElementById("cmCaption");
+  if(!confusionData){
+    cmCaption.textContent = "Confusion matrix unavailable — could not reach the backend.";
+    return;
+  }
+  const { tp, fn, fp, tn } = confusionData;
+  cmGrid.innerHTML = `
+    <div class="cm-cell cm-head"></div>
+    <div class="cm-cell cm-head">Predicted bust</div>
+    <div class="cm-cell cm-head">Predicted normal</div>
+    <div class="cm-cell cm-head" style="writing-mode:vertical-rl;text-orientation:mixed;">Actual bust</div>
+    <div class="cm-cell cm-tp"><div class="cm-val">${tp}</div><div class="cm-lbl">True positive</div></div>
+    <div class="cm-cell cm-fn"><div class="cm-val">${fn}</div><div class="cm-lbl">False negative</div></div>
+    <div class="cm-cell cm-head" style="writing-mode:vertical-rl;text-orientation:mixed;">Actual normal</div>
+    <div class="cm-cell cm-fp"><div class="cm-val">${fp}</div><div class="cm-lbl">False positive</div></div>
+    <div class="cm-cell cm-tn"><div class="cm-val">${tn}</div><div class="cm-lbl">True negative</div></div>`;
+  cmCaption.textContent =
+    `Counts from the held-out 2019 prototype test date, at a fixed 0.5 threshold — ${confusionData.note}.`;
+}
+
+/* ---------------- Day 1 → Day 10 degradation chart (real data from
+   /forecast/day_profile — bust probability climbs, reliability falls
+   as lead time increases) ---------------- */
+function drawDegradationChart(profile){
+  const canvas = document.getElementById("degradationCanvas");
+  const ctx = canvas.getContext("2d");
+  const W = canvas.width, H = canvas.height, pad = 30;
+  ctx.clearRect(0,0,W,H);
+
+  ctx.strokeStyle = "#223350";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(pad, H-pad); ctx.lineTo(W-pad, H-pad);
+  ctx.moveTo(pad, H-pad); ctx.lineTo(pad, pad);
+  ctx.stroke();
+
+  const n = profile.length;
+  const xFor = i => pad + (i/(n-1))*(W-2*pad);
+  const yFor = v => (H-pad) - v*(H-2*pad);
+
+  function drawLine(key, color){
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    profile.forEach((p,i)=>{
+      const x = xFor(i), y = yFor(p[key]);
+      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+    ctx.fillStyle = color;
+    profile.forEach((p,i)=>{
+      const x = xFor(i), y = yFor(p[key]);
+      const r = p.lead_day===state.day ? 4.5 : 2.6;
+      ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
+    });
+  }
+  drawLine("bust_probability", "#EF5B48");
+  drawLine("reliability", "#34C9A6");
+
+  ctx.fillStyle = "#5E7192";
+  ctx.font = "10.5px -apple-system, sans-serif";
+  profile.forEach((p,i)=>{
+    ctx.fillText("D"+p.lead_day, xFor(i)-6, H-pad+14);
+  });
+}
+
+/* ---------------- reliability diagram (canvas, illustrative) ---------------- */
+function drawReliabilityDiagram(){
+  const canvas = document.getElementById("reliabilityCanvas");
+  const ctx = canvas.getContext("2d");
+  const W = canvas.width, H = canvas.height;
+  const pad = 34;
+  ctx.clearRect(0,0,W,H);
+
+  ctx.strokeStyle = "#223350";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(pad, H-pad); ctx.lineTo(W-pad, H-pad);
+  ctx.moveTo(pad, H-pad); ctx.lineTo(pad, pad);
+  ctx.stroke();
+
+  ctx.strokeStyle = "#3A4A66";
+  ctx.setLineDash([4,4]);
+  ctx.beginPath();
+  ctx.moveTo(pad, H-pad); ctx.lineTo(W-pad, pad);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Illustrative near-diagonal curve with small deterministic wobble — see
+  // the caption under this chart: there is no calibration-curve endpoint
+  // on the backend yet, so this is NOT a plot of the real held-out calibration.
+  const rng = hashStr("calibration|"+state.variable+"|"+state.region);
+  const buckets = 10;
+  const pts = [];
+  for(let i=0; i<=buckets; i++){
+    const predicted = i/buckets;
+    const wobble = (rng()-0.5)*0.10*(1-Math.abs(predicted-0.5));
+    const observed = Math.max(0, Math.min(1, predicted + wobble));
+    pts.push([predicted, observed]);
+  }
+  ctx.strokeStyle = "#5B9CF2";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  pts.forEach(([px,py], i)=>{
+    const x = pad + px*(W-2*pad);
+    const y = H-pad - py*(H-2*pad);
+    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+  ctx.fillStyle = "#5B9CF2";
+  pts.forEach(([px,py])=>{
+    const x = pad + px*(W-2*pad);
+    const y = H-pad - py*(H-2*pad);
+    ctx.beginPath(); ctx.arc(x,y,2.6,0,Math.PI*2); ctx.fill();
+  });
+
+  ctx.fillStyle = "#5E7192";
+  ctx.font = "11px -apple-system, sans-serif";
+  ctx.fillText("Predicted probability", W/2-55, H-8);
+  ctx.save();
+  ctx.translate(12, H/2+35);
+  ctx.rotate(-Math.PI/2);
+  ctx.fillText("Observed frequency", 0, 0);
+  ctx.restore();
+}
+
+/* ---------------- historical replay demo (real 2019 data) ---------------- */
+document.getElementById("replayBtn").addEventListener("click", async ()=>{
+  const replayDate = "2019-06-21", replayState = "Odisha", replayLead = 5;
+  state.date = replayDate;
+  state.variable = "rain";
+  state.day = replayLead;
+  state.region = replayState;
+  state.replayMode = true;
+  await renderAll();
+  const card = document.getElementById("replayCard");
+  card.classList.add("show");
+
+  const evoWrap = document.getElementById("replayEvolution");
+  evoWrap.innerHTML = "";
+  try{
+    const profile = await getProfile(replayState, replayDate);
+    const evoDays = profile.profile.filter(p=>p.lead_day <= replayLead);
+    evoDays.forEach(p=>{
+      const row = document.createElement("div");
+      row.className = "replay-evo-row";
+      const color = riskColorFor(p.risk_level);
+      row.innerHTML = `<span class="re-day">Day ${p.lead_day}</span>
+        <span class="re-bar-track"><span class="re-bar-fill" style="width:${Math.round(p.bust_probability*100)}%;background:${color}"></span></span>
+        <span class="re-val" style="color:${color}">${Math.round(p.bust_probability*100)}% ${p.risk_level.toUpperCase()}</span>`;
+      evoWrap.appendChild(row);
+    });
+    // reveal one row at a time so judges can watch the forecast destabilize
+    Array.from(evoWrap.children).forEach((row, i)=>{
+      setTimeout(()=> row.classList.add("show"), i*350);
+    });
+  }catch(err){
+    console.error("replay profile failed:", err);
+    evoWrap.innerHTML = `<div style="color:var(--coral);font-size:12px;">Couldn't load the day-by-day evolution (${err.message}).</div>`;
+  }
+
+  try{
+    const detail = await getPredict(replayState, replayDate, replayLead);
+    const topDriver = (detail.drivers && detail.drivers[0]) ? detail.drivers[0].label.toLowerCase() : "the model's stated drivers";
+    const ana = detail.historical_analogues;
+    document.getElementById("replayBody").innerHTML =
+      `On the <b>${fmtDate(replayDate)}</b> Day-${replayLead} HRES run, ForecastGuard flagged the ${replayState} forecast at
+       <b>${Math.round(detail.bust_probability*100)}% bust probability</b> ahead of verification, citing ${topDriver}.
+       Against ERA5, the observed outcome for this cell was <b>${detail.observed_event_type}</b>` +
+      (ana ? ` — consistent with ${ana.bust_count} of ${ana.k} similar historical analogues (${Math.round(ana.bust_rate*100)}% bust rate) drawn from the training/validation period.` : ".");
+  }catch(err){
+    console.error("replay predict failed:", err);
+    document.getElementById("replayBody").textContent = `Couldn't load replay verification from the backend (${err.message}).`;
+  }
+});
+
+/* ---------------- boot ---------------- */
+async function init(){
+  try{
+    healthData = await apiGet("/health");
+    setStatus(healthData.status === "operational", healthData.status === "operational" ? "Live" : "Degraded");
+  }catch(err){
+    setStatus(false);
+    console.error("health check failed:", err);
+  }
+  renderSystemHealth();
+
+  try{
+    const { dates } = await apiGet("/model/available_dates");
+    state.date = dates.includes("2019-06-21") ? "2019-06-21" : dates[dates.length-1];
+    populateDateSelect(dates);
+  }catch(err){
+    console.error("available_dates failed:", err);
+    document.getElementById("dateInput").innerHTML = `<option>Backend unreachable</option>`;
+    state.date = "2019-06-21"; // best-effort fallback so the rest of the UI can still attempt to render
+  }
+
+  try{
+    metricsData = await apiGet("/model/metrics");
+    document.getElementById("stripModel").textContent = metricsData.model_name || "—";
+  }
+  catch(err){ console.error("model/metrics failed:", err); }
+  renderModelComparison();
+
+  try{ confusionData = await apiGet("/model/confusion_matrix"); }
+  catch(err){ console.error("model/confusion_matrix failed:", err); }
+  renderConfusion();
+
+  renderAll();
+}
+
+init();
+</script>
+</body>
+</html>
